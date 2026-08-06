@@ -4,54 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>英語互動小教室 - Lesson 1</title>
+  
+  <!-- 載入 Tailwind CSS 框架以優化排版與色彩 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
   <style>
-    /* 整體畫面佈局與背景 */
+    /* 確保字體活潑可愛 */
     body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-      font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Nunito', sans-serif;
+      overflow: hidden; /* 防止出現不必要的捲軸 */
     }
 
-    /* 互動場景主要容器 */
-    .scene {
+    /* 互動場景主要容器：限制最大寬度並置中 */
+    .scene-container {
       position: relative;
       width: 700px;
       max-width: 95vw;
-      text-align: center;
+      margin: 0 auto;
     }
 
-    /* 角色插圖 */
+    /* 角色插圖：確保自適應寬度 */
     .character-img {
       width: 100%;
       height: auto;
       display: block;
       user-select: none;
+      border-radius: 1rem;
+      /* 若為透明底，加上這行可以避免背景太突兀 */
     }
 
-    /* --- 點擊互動熱區設定 --- */
+    /* 點擊互動熱區設定 */
     .hotspot {
       position: absolute;
       cursor: pointer;
       border-radius: 20px;
-      transition: background 0.3s, transform 0.2s;
-      /* 預設微微發光提示小朋友這裡可以點 */
-      box-shadow: 0 0 0 rgba(255, 204, 0, 0);
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      /* 預設不可見，只有懸停時發光 */
+      background: transparent;
     }
 
-    /* 滑鼠懸停時顯示溫和的金色光暈與縮放 */
+    /* 滑鼠懸停時顯示溫和的金色光暈與微縮放 */
     .hotspot:hover {
       background: rgba(255, 235, 59, 0.15);
-      box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+      box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
       transform: scale(1.02);
     }
 
-    /* 爸爸媽媽的互動範圍 (左側) */
+    /* 爸爸媽媽的互動範圍 (左側區塊) */
     #parents-area {
       top: 5%;
       left: 5%;
@@ -59,7 +58,7 @@
       height: 85%;
     }
 
-    /* Sam 的互動範圍 (右下側) */
+    /* Sam 的互動範圍 (右側區塊) */
     #sam-area {
       top: 45%;
       left: 58%;
@@ -67,24 +66,24 @@
       height: 48%;
     }
 
-    /* --- 漫畫氣泡對話框 --- */
+    /* 漫畫氣泡對話框 */
     .speech-bubble {
       position: absolute;
       background: #ffffff;
       border: 4px solid #ff7043;
       border-radius: 25px;
       padding: 12px 24px;
-      font-size: 24px;
+      font-size: 1.5rem;
       font-weight: bold;
       color: #333333;
-      display: none;
+      display: none; /* 預設隱藏 */
       z-index: 10;
       box-shadow: 0 8px 16px rgba(0,0,0,0.15);
       white-space: nowrap;
-      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* 氣泡小尾巴 */
+    /* 氣泡對話框下方的小尾巴 */
     .speech-bubble::after {
       content: '';
       position: absolute;
@@ -92,12 +91,12 @@
       left: 30px;
       border-width: 15px 15px 0;
       border-style: solid;
-      border-color: #ff7043 transparent;
+      border-color: #ff7043 transparent transparent transparent;
       display: block;
       width: 0;
     }
 
-    /* --- 點擊時的 CSS 彈跳小動畫 --- */
+    /* 點擊時的人物彈跳小動畫 */
     @keyframes bounce {
       0%, 100% { transform: translateY(0) scale(1); }
       30% { transform: translateY(-15px) scale(1.05); }
@@ -105,76 +104,120 @@
       70% { transform: translateY(-7px) scale(1.02); }
     }
 
-    .animate-bounce {
+    /* 將彈跳動畫綁定到 class 上 */
+    .animate-bounce-custom {
       animation: bounce 0.6s ease;
     }
 
-    /* 氣泡出現彈出效果 */
+    /* 氣泡出現的彈出效果 (果凍感) */
     @keyframes popIn {
       0% { opacity: 0; transform: scale(0.5); }
       100% { opacity: 1; transform: scale(1); }
     }
-
-    /* 頂部標題與提示 */
-    .hint {
-      position: absolute;
-      top: 20px;
-      font-size: 20px;
-      color: #00796b;
-      background: rgba(255,255,255,0.8);
-      padding: 8px 20px;
-      border-radius: 50px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      pointer-events: none;
-    }
   </style>
 </head>
-<body>
 
-  <div class="hint">👆 試著點擊<b>爸爸媽媽</b>或 <b>Sam</b> 聽聽他們說什麼！</div>
+<body class="bg-gradient-to-b from-cyan-100 to-white min-h-screen flex flex-col justify-center items-center">
 
-  <div class="scene">
-    <img src="family.png" alt="Family" class="character-img" id="main-image">
+  <!-- 頂部提示標語 -->
+  <div class="absolute top-6 px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-teal-500 text-teal-800 text-xl font-bold rounded-full shadow-lg pointer-events-none z-20">
+    👆 試著點擊 <span class="text-orange-500">爸爸媽媽</span> 或 <span class="text-blue-500">Sam</span> 聽聽他們說什麼！
+  </div>
 
+  <!-- 互動主要區塊 -->
+  <div class="scene-container mt-12">
+    
+    <!-- 
+      圖片區：加入了 onerror 屬性作為防破圖機制。
+      如果找不到 'family.png'，就會自動顯示一張佔位圖並寫上提示字樣！
+    -->
+    <img 
+      src="family.png" 
+      alt="Family Scene" 
+      class="character-img" 
+      id="main-image"
+      onerror="this.onerror=null; this.src='https://placehold.co/700x600/e0f7fa/00796b?text=Please+Put+family.png+Here'"
+    >
+
+    <!-- 動態漫畫氣泡對話框 (由 JS 控制顯示與內容) -->
     <div id="bubble" class="speech-bubble"></div>
 
-    <div id="parents-area" class="hotspot" onclick="interact('parents', 'Bye, Sam.', 8, 2)"></div>
+    <!-- 爸爸媽媽點擊區 (呼叫 interact 函數) -->
+    <!-- 參數：目標ID, 對話文字, 氣泡左側位置(%), 氣泡上方位置(%) -->
+    <div 
+      id="parents-area" 
+      class="hotspot" 
+      onclick="interact('parents', 'Bye, Sam.', 8, -5)">
+    </div>
 
-    <div id="sam-area" class="hotspot" onclick="interact('sam', 'Bye, dad. Bye, mom.', 45, 30)"></div>
+    <!-- Sam 點擊區 (呼叫 interact 函數) -->
+    <div 
+      id="sam-area" 
+      class="hotspot" 
+      onclick="interact('sam', 'Bye, dad. Bye, mom.', 40, 25)">
+    </div>
+
   </div>
 
   <script>
+    // 儲存定時器，用於快速點擊時重置隱藏對話框的時間
     let hideTimer = null;
 
+    /**
+     * 處理點擊互動的主函數
+     * @param {string} targetId - 被點擊區域的 ID 前綴
+     * @param {string} text - 要顯示及朗讀的英文句子
+     * @param {number} leftPercent - 對話框出現的 X 軸位置百分比
+     * @param {number} topPercent - 對話框出現的 Y 軸位置百分比
+     */
     function interact(targetId, text, leftPercent, topPercent) {
+      
       // 1. 觸發視覺小動畫 (人物區域彈跳)
       const area = document.getElementById(targetId + '-area');
-      area.classList.remove('animate-bounce');
-      // 重新觸發動畫的技巧
+      
+      // 為了能重複觸發 CSS 動畫，必須先移除再重新加入 class
+      area.classList.remove('animate-bounce-custom');
+      // 觸發瀏覽器重繪的魔法代碼
       void area.offsetWidth; 
-      area.classList.add('animate-bounce');
+      area.classList.add('animate-bounce-custom');
 
-      // 2. 顯示對話框與定位
+      // 2. 顯示並定位對話框
       const bubble = document.getElementById('bubble');
       bubble.innerText = text;
       bubble.style.left = leftPercent + '%';
       bubble.style.top = topPercent + '%';
       bubble.style.display = 'block';
 
-      // 如果快速點擊，先清除之前的隱藏倒數
+      // 如果有之前的計時器，先清除，避免氣泡太快消失
       if (hideTimer) clearTimeout(hideTimer);
+      
+      // 設定 3 秒後自動隱藏對話框
       hideTimer = setTimeout(() => {
         bubble.style.display = 'none';
       }, 3000);
 
-      // 3. 播放英文語音 (Web Speech API)
+      // 3. 播放英文語音 (使用瀏覽器內建 Web Speech API)
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // 停止上一句
+        // 先停止任何正在播放的語音
+        window.speechSynthesis.cancel(); 
+        
+        // 建立語音實例
         const utterance = new SpeechSynthesisUtterance(text);
+        
+        // 設定語言為美式英語
         utterance.lang = 'en-US';
-        utterance.rate = 0.85; // 稍慢的語速更適合兒童聽力
-        utterance.pitch = (targetId === 'sam') ? 1.3 : 1.0; // Sam 用比較高的童音，爸媽用正常音調
+        
+        // 語速稍微放慢，適合小朋友聽 (1.0為正常，0.85為稍慢)
+        utterance.rate = 0.85; 
+        
+        // 根據點擊的角色調整音高 (Pitch)
+        // Sam 聽起來像小孩，音調較高 (1.3)；爸媽用正常音調 (1.0)
+        utterance.pitch = (targetId === 'sam') ? 1.3 : 1.0; 
+        
+        // 開始朗讀
         window.speechSynthesis.speak(utterance);
+      } else {
+        console.warn('您的瀏覽器不支援語音朗讀功能喔！');
       }
     }
   </script>
