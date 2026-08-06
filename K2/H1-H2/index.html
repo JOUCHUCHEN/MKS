@@ -3,224 +3,381 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>英語互動小教室 - Lesson 1</title>
-  
-  <!-- 載入 Tailwind CSS 框架以優化排版與色彩 -->
+  <title>獨立圖片素材與動態效果展示</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    /* 確保字體活潑可愛 */
     body {
-      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Nunito', sans-serif;
-      overflow: hidden; /* 防止出現不必要的捲軸 */
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Nunito', 'Microsoft JhengHei', sans-serif;
     }
 
-    /* 互動場景主要容器：限制最大寬度並置中 */
-    .scene-container {
-      position: relative;
-      width: 700px;
-      max-width: 95vw;
-      margin: 0 auto;
+    /* 手臂擺動動畫 (以肩膀為原點) */
+    @keyframes waveHand {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-28deg); }
+      50% { transform: rotate(10deg); }
+      75% { transform: rotate(-25deg); }
+      100% { transform: rotate(0deg); }
     }
 
-    /* 角色插圖：確保自適應寬度 */
-    .character-img {
-      width: 100%;
-      height: auto;
-      display: block;
-      user-select: none;
-      border-radius: 1rem;
-      /* 若為透明底，加上這行可以避免背景太突兀 */
+    .animate-wave {
+      animation: waveHand 0.8s ease-in-out infinite;
+      transform-origin: 18% 82%; /* 設定旋轉原點在肩膀處 */
     }
 
-    /* 點擊互動熱區設定 */
-    .hotspot {
-      position: absolute;
-      cursor: pointer;
-      border-radius: 20px;
-      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-      /* 預設不可見，只有懸停時發光 */
-      background: transparent;
+    /* 頭部微點頭動畫 */
+    @keyframes nodHead {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
     }
 
-    /* 滑鼠懸停時顯示溫和的金色光暈與微縮放 */
-    .hotspot:hover {
-      background: rgba(255, 235, 59, 0.15);
-      box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
-      transform: scale(1.02);
+    .animate-nod {
+      animation: nodHead 1.2s ease-in-out infinite;
+      transform-origin: 50% 90%;
     }
 
-    /* 爸爸媽媽的互動範圍 (左側區塊) */
-    #parents-area {
-      top: 5%;
-      left: 5%;
-      width: 48%;
-      height: 85%;
+    /* 雙腿走路動畫 */
+    @keyframes walkLegLeft {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg); }
+    }
+    @keyframes walkLegRight {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-18deg); }
     }
 
-    /* Sam 的互動範圍 (右側區塊) */
-    #sam-area {
-      top: 45%;
-      left: 58%;
-      width: 35%;
-      height: 48%;
+    .animate-leg-left {
+      animation: walkLegLeft 0.6s ease-in-out infinite;
+      transform-origin: 50% 10%;
+    }
+    .animate-leg-right {
+      animation: walkLegRight 0.6s ease-in-out infinite;
+      transform-origin: 50% 10%;
     }
 
-    /* 漫畫氣泡對話框 */
-    .speech-bubble {
-      position: absolute;
-      background: #ffffff;
-      border: 4px solid #ff7043;
-      border-radius: 25px;
-      padding: 12px 24px;
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #333333;
-      display: none; /* 預設隱藏 */
-      z-index: 10;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-      white-space: nowrap;
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    /* 氣泡對話框下方的小尾巴 */
-    .speech-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -15px;
-      left: 30px;
-      border-width: 15px 15px 0;
-      border-style: solid;
-      border-color: #ff7043 transparent transparent transparent;
-      display: block;
-      width: 0;
-    }
-
-    /* 點擊時的人物彈跳小動畫 */
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0) scale(1); }
-      30% { transform: translateY(-15px) scale(1.05); }
-      50% { transform: translateY(0) scale(0.98); }
-      70% { transform: translateY(-7px) scale(1.02); }
-    }
-
-    /* 將彈跳動畫綁定到 class 上 */
-    .animate-bounce-custom {
-      animation: bounce 0.6s ease;
-    }
-
-    /* 氣泡出現的彈出效果 (果凍感) */
-    @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.5); }
-      100% { opacity: 1; transform: scale(1); }
+    /* 圖層高亮閃爍效果 */
+    .part-highlight {
+      filter: drop-shadow(0 0 10px #ff9800) drop-shadow(0 0 15px #ffeb3b);
     }
   </style>
 </head>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-4 md:p-8">
 
-<body class="bg-gradient-to-b from-cyan-100 to-white min-h-screen flex flex-col justify-center items-center">
-
-  <!-- 頂部提示標語 -->
-  <div class="absolute top-6 px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-teal-500 text-teal-800 text-xl font-bold rounded-full shadow-lg pointer-events-none z-20">
-    👆 試著點擊 <span class="text-orange-500">爸爸媽媽</span> 或 <span class="text-blue-500">Sam</span> 聽聽他們說什麼！
-  </div>
-
-  <!-- 互動主要區塊 -->
-  <div class="scene-container mt-12">
+  <div class="max-w-5xl mx-auto space-y-6">
     
-    <!-- 
-      圖片區：加入了 onerror 屬性作為防破圖機制。
-      如果找不到 'family.png'，就會自動顯示一張佔位圖並寫上提示字樣！
-    -->
-    <img 
-      src="family.png" 
-      alt="Family Scene" 
-      class="character-img" 
-      id="main-image"
-      onerror="this.onerror=null; this.src='https://placehold.co/700x600/e0f7fa/00796b?text=Please+Put+family.png+Here'"
-    >
+    <!-- 頁面標頭 -->
+    <header class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-teal-700 flex items-center justify-center md:justify-start gap-3">
+          <i class="fa-solid fa-puzzle-piece text-amber-500"></i>
+          什麼是「獨立圖片素材」？
+        </h1>
+        <p class="text-slate-600 mt-2 text-sm md:text-base">
+          將角色的手臂、頭部、嘴巴拆分成獨立圖層，就能實現「揮手」、「開口說話」等栩栩如生的動畫！
+        </p>
+      </div>
+      <div class="bg-teal-50 text-teal-800 px-4 py-2 rounded-xl border border-teal-200 text-xs md:text-sm font-semibold whitespace-nowrap">
+        💡 互動動畫觀念教室
+      </div>
+    </header>
 
-    <!-- 動態漫畫氣泡對話框 (由 JS 控制顯示與內容) -->
-    <div id="bubble" class="speech-bubble"></div>
+    <!-- 主展示區：左側比較，右側紙偶實驗室 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- 爸爸媽媽點擊區 (呼叫 interact 函數) -->
-    <!-- 參數：目標ID, 對話文字, 氣泡左側位置(%), 氣泡上方位置(%) -->
-    <div 
-      id="parents-area" 
-      class="hotspot" 
-      onclick="interact('parents', 'Bye, Sam.', 8, -5)">
+      <!-- 左欄：圖解說明 (5 欄寬) -->
+      <div class="lg:col-span-5 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 border-b pb-3 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-teal-600"></i> 素材拆解前後對比
+          </h2>
+
+          <div class="space-y-4">
+            <!-- 單張圖說明 -->
+            <div class="p-4 bg-rose-50 rounded-xl border border-rose-200">
+              <div class="flex items-center gap-2 text-rose-700 font-bold text-sm mb-1">
+                <i class="fa-solid fa-circle-xmark"></i> 未拆分（單張平面圖片）
+              </div>
+              <p class="text-xs text-rose-900 leading-relaxed">
+                全家人黏在同一張背景圖上。點擊時只能做整體「蹦蹦跳」或「傾斜」，無法做出單獨揮手或嘴巴開合的動作。
+              </p>
+            </div>
+
+            <!-- 獨立素材說明 -->
+            <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+              <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-1">
+                <i class="fa-solid fa-circle-check"></i> 獨立素材（拆解肢體元件）
+              </div>
+              <p class="text-xs text-emerald-900 leading-relaxed">
+                將 Sam 的手臂、嘴巴、雙腿分離成獨立透明 PNG 圖層。透過程式控制各組件旋轉、位移，就能像操縱紙偶一樣靈動！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 獨立零件分層清單 (點擊可高亮預覽) -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">點擊以下圖層查看獨立組件：</h3>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="highlightPart('head')" class="p-2.5 bg-slate-50 hover:bg-teal-50 border border-slate-200 rounded-lg text-left transition flex items-center justify-between font-semibold">
+              <span>🗣️ 頭部與眼睛</span>
+              <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+            </button>
+            <button onclick="highlightPart('mouth')" class="p-2.5 bg-slate-50 hover:bg-teal-50 border border-slate-200 rounded-lg text-left transition flex items-center justify-between font-semibold">
+              <span>👄 動態嘴巴</span>
+              <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+            </button>
+            <button onclick="highlightPart('arm')" class="p-2.5 bg-slate-50 hover:bg-teal-50 border border-slate-200 rounded-lg text-left transition flex items-center justify-between font-semibold">
+              <span>👋 揮手右手</span>
+              <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+            </button>
+            <button onclick="highlightPart('legs')" class="p-2.5 bg-slate-50 hover:bg-teal-50 border border-slate-200 rounded-lg text-left transition flex items-center justify-between font-semibold">
+              <span>🦵 走路雙腿</span>
+              <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右欄：獨立素材肢體紙偶實驗室 (7 欄寬) -->
+      <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between border-b pb-3 mb-4">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-gamepad text-orange-500"></i> Sam 的肢體動畫實驗室
+            </h2>
+            <span class="text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full font-bold">
+              可互動測試
+            </span>
+          </div>
+
+          <!-- 畫布/角色展示區域 -->
+          <div class="relative w-full h-72 bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-50 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
+            
+            <!-- 對話框 -->
+            <div id="speech-bubble" class="absolute top-6 opacity-0 transition-opacity duration-300 bg-white border-2 border-orange-500 rounded-2xl px-4 py-2 font-bold text-slate-800 text-sm shadow-md flex items-center gap-2 z-30 pointer-events-none">
+              <span id="speech-text">Bye, dad! Bye, mom!</span>
+            </div>
+
+            <!-- SAM 獨立素材組裝角色 (使用 SVG 模擬獨立圖層元件) -->
+            <div id="sam-puppet" class="relative w-48 h-56 transition-transform duration-500">
+              
+              <svg viewBox="0 0 200 240" class="w-full h-full">
+                
+                <!-- 1. 圖層：左手臂 (固定) -->
+                <g id="part-left-arm">
+                  <path d="M 70 120 C 50 130, 45 150, 50 165 C 55 170, 65 165, 62 155 C 58 145, 72 135, 78 128 Z" fill="#38bdf8" />
+                  <circle cx="50" cy="165" r="7" fill="#fbcfe8" />
+                </g>
+
+                <!-- 2. 圖層：左腳 -->
+                <g id="part-leg-left">
+                  <rect x="80" y="170" width="12" height="35" rx="6" fill="#15803d" />
+                  <ellipse cx="80" cy="205" rx="10" ry="6" fill="#dc2626" />
+                </g>
+
+                <!-- 3. 圖層：右腳 -->
+                <g id="part-leg-right">
+                  <rect x="108" y="170" width="12" height="35" rx="6" fill="#15803d" />
+                  <ellipse cx="118" cy="205" rx="10" ry="6" fill="#dc2626" />
+                </g>
+
+                <!-- 4. 圖層：身體 (穿上衣與短褲) -->
+                <g id="part-body">
+                  <path d="M 70 110 Q 100 105 130 110 L 125 175 Q 100 178 75 175 Z" fill="#0284c7" />
+                  <rect x="75" y="160" width="50" height="18" fill="#16a34a" />
+                  <!-- 背包肩帶 -->
+                  <path d="M 78 110 L 85 160" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+                  <path d="M 122 110 L 115 160" stroke="#f97316" stroke-width="5" stroke-linecap="round" />
+                </g>
+
+                <!-- 5. 圖層：頭部 (包含頭髮與臉龐) -->
+                <g id="part-head">
+                  <!-- 臉底 -->
+                  <circle cx="100" cy="75" r="32" fill="#fde047" opacity="0.2"/>
+                  <circle cx="100" cy="75" r="30" fill="#fbcfe8" />
+                  <!-- 捲捲頭髮 -->
+                  <path d="M 70 65 Q 65 40 85 35 Q 100 25 115 35 Q 135 40 130 65 Q 120 40 100 45 Q 80 40 70 65 Z" fill="#3f2e16" />
+                  <!-- 眼睛 -->
+                  <ellipse cx="90" cy="70" rx="4" ry="6" fill="#1e293b" />
+                  <ellipse cx="112" cy="70" rx="4" ry="6" fill="#1e293b" />
+                  <circle cx="91" cy="68" r="1.5" fill="#ffffff" />
+                  <circle cx="113" cy="68" r="1.5" fill="#ffffff" />
+                  <!-- 腮紅 -->
+                  <circle cx="82" cy="78" r="5" fill="#f43f5e" opacity="0.4" />
+                  <circle cx="120" cy="78" r="5" fill="#f43f5e" opacity="0.4" />
+                  
+                  <!-- 6. 子圖層：嘴巴 (閉嘴預設) -->
+                  <g id="part-mouth">
+                    <path id="mouth-closed" d="M 94 86 Q 101 92 108 86" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                    <!-- 開口嘴巴 (預設隱藏) -->
+                    <path id="mouth-open" d="M 93 85 Q 101 97 109 85 Z" fill="#e11d48" class="hidden" />
+                  </g>
+                </g>
+
+                <!-- 7. 圖層：右手臂 (關鍵！可單獨揮動) -->
+                <g id="part-arm">
+                  <!-- 旋轉中心約在 (125, 115) -->
+                  <g id="arm-rotator" style="transform-origin: 125px 115px;">
+                    <path d="M 125 115 C 145 110, 160 90, 165 70 C 170 65, 178 72, 172 80 C 165 100, 145 125, 130 128 Z" fill="#38bdf8" />
+                    <circle cx="168" cy="72" r="7" fill="#fbcfe8" />
+                  </g>
+                </g>
+
+              </svg>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 動畫操控按鈕區 -->
+        <div class="mt-6 pt-4 border-t space-y-3">
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">點擊按鈕觸發單獨組件動畫：</div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <!-- 按鈕 1：獨立揮手 -->
+            <button onclick="triggerWave()" class="px-3 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-hand-wave"></i> 1. 右手單獨揮動
+            </button>
+
+            <!-- 按鈕 2：開口對嘴 -->
+            <button onclick="triggerTalk()" class="px-3 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-comments"></i> 2. 嘴巴開合對嘴
+            </button>
+
+            <!-- 按鈕 3：雙腿走路 -->
+            <button onclick="triggerWalk()" class="px-3 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-person-walking"></i> 3. 雙腿向前走路
+            </button>
+
+            <!-- 按鈕 4：全套組合 -->
+            <button onclick="triggerFullCombo()" class="px-3 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> 4. 語音+動作全套
+            </button>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- Sam 點擊區 (呼叫 interact 函數) -->
-    <div 
-      id="sam-area" 
-      class="hotspot" 
-      onclick="interact('sam', 'Bye, dad. Bye, mom.', 40, 25)">
-    </div>
+    <!-- 底部教學總結 -->
+    <footer class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-amber-900 text-xs md:text-sm flex items-start gap-3">
+      <i class="fa-solid fa-lightbulb text-amber-500 text-xl mt-0.5"></i>
+      <div>
+        <div class="font-bold mb-1">製作建議與優缺點小結：</div>
+        <p class="leading-relaxed text-amber-800">
+          若您想要人物有<b>「真正的揮手」</b>、<b>「嘴巴對嘴型」</b>，就必須將圖片製作成獨立 PNG 素材（可以使用 Photoshop 去背，或請繪師將手臂與頭部分開存檔）。如果您希望快速達成簡單的點擊互動，使用整張圖片搭配「果凍彈跳」或「滑行」也是非常實用且高效率的做法喔！
+        </p>
+      </div>
+    </footer>
 
   </div>
 
   <script>
-    // 儲存定時器，用於快速點擊時重置隱藏對話框的時間
-    let hideTimer = null;
+    let talkInterval = null;
 
-    /**
-     * 處理點擊互動的主函數
-     * @param {string} targetId - 被點擊區域的 ID 前綴
-     * @param {string} text - 要顯示及朗讀的英文句子
-     * @param {number} leftPercent - 對話框出現的 X 軸位置百分比
-     * @param {number} topPercent - 對話框出現的 Y 軸位置百分比
-     */
-    function interact(targetId, text, leftPercent, topPercent) {
+    // 1. 觸發右手獨立揮動
+    function triggerWave() {
+      const armRotator = document.getElementById('arm-rotator');
+      armRotator.classList.remove('animate-wave');
+      void armRotator.offsetWidth;
+      armRotator.classList.add('animate-wave');
+
+      setTimeout(() => {
+        armRotator.classList.remove('animate-wave');
+      }, 2400);
+    }
+
+    // 2. 觸發嘴巴開合與頭部微動
+    function triggerTalk() {
+      const mouthClosed = document.getElementById('mouth-closed');
+      const mouthOpen = document.getElementById('mouth-open');
+      const head = document.getElementById('part-head');
+
+      head.classList.add('animate-nod');
+
+      let isOpen = false;
+      if (talkInterval) clearInterval(talkInterval);
       
-      // 1. 觸發視覺小動畫 (人物區域彈跳)
-      const area = document.getElementById(targetId + '-area');
-      
-      // 為了能重複觸發 CSS 動畫，必須先移除再重新加入 class
-      area.classList.remove('animate-bounce-custom');
-      // 觸發瀏覽器重繪的魔法代碼
-      void area.offsetWidth; 
-      area.classList.add('animate-bounce-custom');
+      let count = 0;
+      talkInterval = setInterval(() => {
+        isOpen = !isOpen;
+        if (isOpen) {
+          mouthClosed.classList.add('hidden');
+          mouthOpen.classList.remove('hidden');
+        } else {
+          mouthClosed.classList.remove('hidden');
+          mouthOpen.classList.add('hidden');
+        }
+        count++;
+        if (count > 8) {
+          clearInterval(talkInterval);
+          mouthClosed.classList.remove('hidden');
+          mouthOpen.classList.add('hidden');
+          head.classList.remove('animate-nod');
+        }
+      }, 180);
+    }
 
-      // 2. 顯示並定位對話框
-      const bubble = document.getElementById('bubble');
-      bubble.innerText = text;
-      bubble.style.left = leftPercent + '%';
-      bubble.style.top = topPercent + '%';
-      bubble.style.display = 'block';
+    // 3. 觸發雙腿走路位移
+    function triggerWalk() {
+      const legLeft = document.getElementById('part-leg-left');
+      const legRight = document.getElementById('part-leg-right');
+      const puppet = document.getElementById('sam-puppet');
 
-      // 如果有之前的計時器，先清除，避免氣泡太快消失
-      if (hideTimer) clearTimeout(hideTimer);
-      
-      // 設定 3 秒後自動隱藏對話框
-      hideTimer = setTimeout(() => {
-        bubble.style.display = 'none';
-      }, 3000);
+      legLeft.classList.add('animate-leg-left');
+      legRight.classList.add('animate-leg-right');
+      puppet.style.transform = 'translateX(-40px)';
 
-      // 3. 播放英文語音 (使用瀏覽器內建 Web Speech API)
+      setTimeout(() => {
+        puppet.style.transform = 'translateX(0px)';
+      }, 1200);
+
+      setTimeout(() => {
+        legLeft.classList.remove('animate-leg-left');
+        legRight.classList.remove('animate-leg-right');
+      }, 2400);
+    }
+
+    // 4. 全套組合：語音 + 揮手 + 嘴巴對嘴
+    function triggerFullCombo() {
+      triggerWave();
+      triggerTalk();
+
+      const bubble = document.getElementById('speech-bubble');
+      bubble.style.opacity = '1';
+
       if ('speechSynthesis' in window) {
-        // 先停止任何正在播放的語音
-        window.speechSynthesis.cancel(); 
-        
-        // 建立語音實例
-        const utterance = new SpeechSynthesisUtterance(text);
-        
-        // 設定語言為美式英語
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance('Bye, dad. Bye, mom.');
         utterance.lang = 'en-US';
-        
-        // 語速稍微放慢，適合小朋友聽 (1.0為正常，0.85為稍慢)
-        utterance.rate = 0.85; 
-        
-        // 根據點擊的角色調整音高 (Pitch)
-        // Sam 聽起來像小孩，音調較高 (1.3)；爸媽用正常音調 (1.0)
-        utterance.pitch = (targetId === 'sam') ? 1.3 : 1.0; 
-        
-        // 開始朗讀
+        utterance.pitch = 1.3;
+        utterance.rate = 0.9;
         window.speechSynthesis.speak(utterance);
-      } else {
-        console.warn('您的瀏覽器不支援語音朗讀功能喔！');
+      }
+
+      setTimeout(() => {
+        bubble.style.opacity = '0';
+      }, 2800);
+    }
+
+    // 點擊左側清單，閃爍高亮對應的元件
+    function highlightPart(partName) {
+      let targetId = '';
+      if (partName === 'head') targetId = 'part-head';
+      if (partName === 'mouth') targetId = 'part-mouth';
+      if (partName === 'arm') targetId = 'part-arm';
+      if (partName === 'legs') targetId = 'part-leg-right';
+
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.classList.add('part-highlight');
+        setTimeout(() => {
+          elem.classList.remove('part-highlight');
+        }, 1200);
       }
     }
   </script>
-
 </body>
 </html>
