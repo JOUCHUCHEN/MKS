@@ -80,6 +80,10 @@
             text-align: center;
             max-width: 80%;
             font-weight: 700;
+            
+            /* 將文字區塊往上移 5% */
+            position: relative;
+            top: -5vh; 
         }
 
         .theme-grid {
@@ -89,6 +93,10 @@
             gap: 15px;
             max-width: 480px;
             width: 90%;
+            
+            /* 將主題按鈕區塊往上移 5% */
+            position: relative;
+            top: -5vh;
         }
 
         .theme-btn {
@@ -209,14 +217,7 @@
             position: absolute;
             border-radius: 50%;
             pointer-events: auto;
-            transition: all 0.2s;
-            background-color: rgba(255, 255, 255, 0);
-        }
-
-        .hitbox.highlight {
-            background-color: rgba(255, 255, 255, 0.4);
-            box-shadow: inset 0 0 0 4px #fff;
-            transform: scale(1.1);
+            /* 取消所有的背景色與光暈特效設定 */
         }
 
         .fallback-base {
@@ -464,8 +465,12 @@
         const bubblesLayer = document.getElementById('bubbles-layer');
         const themeLabel = document.getElementById('theme-label');
 
+        // --- BGM 背景音樂設定 ---
+        const bgm = new Audio('oleg-mazu-bgm.mp3');
+        bgm.loop = true;
+        bgm.preload = 'auto';
+
         // --- 音效處理與預載 (Audio Preloading) ---
-        // 1. 在全域先將所有音效建立好，讓瀏覽器可以在背景提早載入與解碼
         const audioAssets = {
             correct: new Audio('correct.mp3'),
             error: new Audio('error.mp3'),
@@ -483,18 +488,16 @@
         const successPhrasesKeys = ['goodJob', 'great', 'wayToGo'];
         
         function playSuccessFeedback() {
-            // 2. 播放前將時間歸零，確保可以連續快速觸發
             audioAssets.correct.currentTime = 0;
             audioAssets.correct.play().catch(e => console.log('Audio playback failed:', e));
             
-            // 當 correct 音效結束時，延遲 0.5 秒後播放隨機的人聲讚美
             audioAssets.correct.onended = () => {
                 setTimeout(() => {
                     const randomKey = successPhrasesKeys[Math.floor(Math.random() * successPhrasesKeys.length)];
                     const phraseAudio = audioAssets[randomKey];
                     phraseAudio.currentTime = 0;
                     phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
-                }, 200); 
+                }, 50); 
             };
         }
 
@@ -502,7 +505,6 @@
             audioAssets.error.currentTime = 0;
             audioAssets.error.play().catch(e => console.log('Audio playback failed:', e));
             
-            // 當 error 音效結束時，播放 try again.mp3
             audioAssets.error.onended = () => {
                 audioAssets.tryAgain.currentTime = 0;
                 audioAssets.tryAgain.play().catch(e => console.log('Audio playback failed:', e));
@@ -522,6 +524,10 @@
             winScreen.style.display = 'none';
             gameContainer.style.display = 'block';
 
+            // 播放背景音樂
+            bgm.currentTime = 0;
+            bgm.play().catch(e => console.log('BGM playback failed:', e));
+
             renderBases(themes);
             
             bubblesLayer.innerHTML = '';
@@ -533,6 +539,7 @@
 
         function backToMenu() {
             cancelAnimationFrame(animationFrameId);
+            bgm.pause(); // 停止 BGM
             gameContainer.style.display = 'none';
             winScreen.style.display = 'none';
             introScreen.style.display = 'flex';
@@ -664,9 +671,6 @@
                 lastSpawnTime = timestamp;
             }
 
-            const hitboxes = document.querySelectorAll('.hitbox');
-            hitboxes.forEach(h => h.classList.remove('highlight'));
-
             for (let i = bubbles.length - 1; i >= 0; i--) {
                 let b = bubbles[i];
                 
@@ -682,8 +686,6 @@
                         bubbles.splice(i, 1);
                         continue;
                     }
-                } else {
-                    checkHover(b.element, hitboxes);
                 }
             }
 
@@ -748,30 +750,15 @@
             };
         }
 
-        function checkHover(bubbleEl, hitboxes) {
-            const bCenter = getCenter(bubbleEl);
-            
-            hitboxes.forEach(hitbox => {
-                const boxRect = hitbox.getBoundingClientRect();
-                if (bCenter.x > boxRect.left && bCenter.x < boxRect.right &&
-                    bCenter.y > boxRect.top && bCenter.y < boxRect.bottom) {
-                    hitbox.classList.add('highlight');
-                }
-            });
-        }
-
         function checkCollision(bubbleEl, hitboxes) {
             const bCenter = getCenter(bubbleEl);
             let matched = false;
-            let targetHitbox = null; 
 
             for (let hitbox of hitboxes) {
                 const boxRect = hitbox.getBoundingClientRect();
                 if (bCenter.x > boxRect.left && bCenter.x < boxRect.right &&
                     bCenter.y > boxRect.top && bCenter.y < boxRect.bottom) {
                     
-                    targetHitbox = hitbox;
-
                     if (bubbleEl.dataset.letter === hitbox.dataset.letter) {
                         
                         const isBubbleUpper = bubbleEl.dataset.isUpper === 'true';
@@ -815,6 +802,7 @@
 
         function showWinScreen() {
             cancelAnimationFrame(animationFrameId);
+            bgm.pause(); // 停止 BGM
             gameContainer.style.display = 'none';
             winScreen.style.display = 'flex';
         }
