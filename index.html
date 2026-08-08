@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Letter Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* 移除 Google Fonts，改用系統內建的可愛字體作為 Fallback，確保在中國大陸秒開 */
+            font-family: 'Fredoka One', 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+        }
+
+        body {
+            /* 柔和的單色背景，符合 reference 圖的風格 */
+            background-color: #f8f6f0;
+            overflow: hidden;
+            touch-action: none;
+            color: #5a5a5a;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 選單畫面 */
+        #intro-screen, #win-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f8f6f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .content-wrapper {
+            transform: translateY(-5%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 新增標題圖片專用樣式 */
+        .title-image {
+            max-width: 95%;
+            width: 840px; /* 放大標題圖片 */
+            height: auto;
+            margin-bottom: 20px;
+
+            position: relative;
+            top: 5vh;
+
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+            /* 加上輕微浮動動畫，讓畫面更生動 */
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .guide-text {
+            font-family: 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+            font-size: 22px;
+            color: #959595; /* 配合背景變為柔和的灰色 */
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 80%;
+            font-weight: 700;
+        }
+
+        .theme-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px; /* 縮小按鈕間距 */
+            max-width: 480px; /* 縮小主題區塊整體寬度 */
+            width: 90%;
+        }
+
+        .theme-btn {
+            padding: 15px 10px; /* 縮小按鈕 padding */
+            font-size: 36px;
+            font-family: 'Fredoka One', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+            border-radius: 16px; /* 圓角調整得更柔和 */
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+            flex: 1 1 calc(33.333% - 15px);
+            min-width: 120px;
+            border: none; /* 移除原本的線條外框，改用純 shadow 做立體效果 */
+        }
+        
+        /* 參照附圖的色票重新設定按鈕 */
+        .theme-btn:nth-child(1) { background-color: #f7afb1; box-shadow: 0 6px 0 #df8a8c; color: white; }
+        .theme-btn:nth-child(2) { background-color: #ffeaa2; box-shadow: 0 6px 0 #ecd16d; color: #a46f34; }
+        .theme-btn:nth-child(3) { background-color: #a29cfe; box-shadow: 0 6px 0 #7e75db; color: white; }
+        .theme-btn:nth-child(4) { background-color: #79ebd0; box-shadow: 0 6px 0 #57c7a9; color: white; flex: 0 1 calc(33.333% - 15px); }
+        .theme-btn:nth-child(5) { background-color: #f4b4a1; box-shadow: 0 6px 0 #d98f79; color: white; flex: 0 1 calc(33.333% - 15px); }
+
+        .theme-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        #top-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 0 #dcdde1;
+            border: 3px solid #f5f6fa;
+        }
+
+        .progress-label {
+            font-size: 20px;
+            color: #7f8c8d;
+            margin-right: 15px;
+        }
+
+        #score-display {
+            font-size: 28px;
+            color: #ff9f43;
+            letter-spacing: 2px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            font-size: 20px;
+            color: white;
+            background-color: #ff7675;
+            border: 3px solid #d63031;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #d63031;
+            font-family: 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+            font-weight: 800;
+        }
+
+        .back-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        /* 基地區域 */
+        #bases-container {
+            position: absolute;
+            top: 80px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 20;
+            padding: 0 20px;
+            pointer-events: none; /* 讓拖曳事件穿透容器，直接觸發 hitbox */
+        }
+
+        .base-wrapper {
+            position: relative;
+            /* 將基地圖片大幅放大顯示 */
+            width: 800px; /* 從 480px 放大到 800px */
+            max-width: 95vw; /* 確保在手機上也能佔滿畫面寬度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .multi-base .base-wrapper {
+            width: 280px;
+            max-width: 45vw;
+        }
+
+        .base-wrapper img.main-base-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* 圖檔上對應大小寫的觸發區域（Hitbox） */
+        .hitbox {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: auto; /* 允許碰撞偵測 */
+            transition: all 0.2s;
+            /* 預設為隱藏，當泡泡靠近時會發亮提示 */
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+        /* 當泡泡拖曳至觸發區上方時的發亮效果 */
+        .hitbox.highlight {
+            background-color: rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 0 0 4px #fff;
+            transform: scale(1.1);
+        }
+
+        /* 針對沒有提供單一圖片的其他字母（M, T, F, A）的備用樣式 */
+        .fallback-base {
+            display: flex;
+            gap: 50px;
+            background: rgba(255,255,255,0.4);
+            padding: 20px 40px;
+            border-radius: 40px;
+            border: 3px dashed #b2bec3;
+            pointer-events: auto;
+        }
+
+        .fallback-hitbox {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 4px solid #fdcb6e;
+            box-shadow: 0 6px 0 #fdcb6e;
+            color: #d35400;
+            transition: all 0.2s;
+        }
+        
+        .fallback-hitbox[data-is-upper="false"] {
+            border-color: #4dd0e1;
+            box-shadow: 0 6px 0 #4dd0e1;
+            color: #0097a7;
+            font-size: 44px;
+        }
+
+        /* 泡泡 */
+        #bubbles-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 80; /* 將泡泡層提升到最上層 */
+        }
+
+        .bubble {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            z-index: 80; /* 提升泡泡的初始層級 */
+            pointer-events: auto;
+        }
+
+        .bubble-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            transition: transform 0.1s;
+        }
+        
+        .bubble-inner img {
+            width: 100%;
+            height: 100%;
+            /* 讓圖片完整顯示不裁切 */
+            object-fit: contain; 
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* 沒提供圖片時的純文字泡泡備用樣式 */
+        .bubble.text-only .bubble-inner {
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .bubble:active {
+            cursor: grabbing;
+        }
+        
+        .bubble:active .bubble-inner {
+            transform: scale(1.1);
+        }
+
+        .bubble-inner.wrong {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); opacity: 1; }
+            40% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            50% { transform: translateX(15px); }
+            75% { transform: translateX(-15px); }
+        }
+
+        /* 勝利畫面按鈕 */
+        .win-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 24px;
+            color: white;
+            background-color: #00b894;
+            border: 4px solid #00a8ff;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #0097e6;
+            font-family: 'Fredoka One', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+        
+        .win-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        /* 裝飾性背景元素 (低飽和插畫色系) */
+        .bg-deco {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z" fill="%23c4d5c1" opacity="0.6"/></svg>');
+            background-size: cover;
+            z-index: 1;
+        }
+        .bg-deco2 {
+            position: absolute;
+            bottom: -10px;
+            width: 100%;
+            height: 120px;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,80 C400,20 800,120 1200,40 L1200,120 L0,120 Z" fill="%23d2dac1" opacity="0.8"/></svg>');
+            background-size: cover;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 選單畫面 -->
+    <div id="intro-screen">
+        <div class="content-wrapper">
+            <img src="title.png" alt="Magic Letter Island" class="title-image">
+            <p class="guide-text">Choose a theme to start playing!<br><span style="font-size: 16px; color: #b5b5b5;">Goal: Drag the matching letters to their correct base! (Upper to Upper, Lower to Lower)</span></p>
+            
+            <div class="theme-grid">
+                <button class="theme-btn" onclick="startGame(['S'])">Ss</button>
+                <button class="theme-btn" onclick="startGame(['M'])">Mm</button>
+                <button class="theme-btn" onclick="startGame(['T'])">Tt</button>
+                <button class="theme-btn" onclick="startGame(['F'])">Ff</button>
+                <button class="theme-btn" onclick="startGame(['A'])">Aa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲容器 -->
+    <div id="game-container" style="display: none;">
+        <div class="bg-deco"></div>
+        <div class="bg-deco2"></div>
+        
+        <div id="top-bar">
+            <div class="progress-container">
+                <span class="progress-label" id="theme-label">Theme</span>
+                <div id="score-display">⭐ 0 / 5</div>
+            </div>
+            <button class="back-btn" onclick="backToMenu()">Menu</button>
+        </div>
+
+        <div id="bases-container"></div>
+        <div id="bubbles-layer"></div>
+    </div>
+
+    <!-- 勝利畫面 -->
+    <div id="win-screen" style="display: none;">
+        <h1 class="title" style="font-size: 64px;">Awesome!</h1>
+        <p class="guide-text" style="font-size: 28px;">You completed this theme's challenge!</p>
+        <button class="win-btn" onclick="backToMenu()">Choose Another Theme</button>
+    </div>
+
+    <script>
+        const allLetters = {
+            S: { 
+                upper: 'S', lower: 's', color: '#ffb3ba', 
+                upperImg: 'U-S.png', lowerImg: 'L-S.png', 
+                baseImg: 'Snake-S.png',
+                /* 
+                   根據蛇圖案設定的觸發區域 (Hitbox) 參數
+                   預設：粉紅色 s 在左邊，黃色 S 在中間
+                   百分比是相對於整張 baseImg 的寬高
+                */
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' }, // 對應左側粉紅圓圈 's'
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' } // 對應右側黃色圓圈 'S'
+            },
+            M: { 
+                upper: 'M', lower: 'm', color: '#ffdfba',
+                upperImg: 'U-M.png', lowerImg: 'L-M.png', 
+                baseImg: 'Snake-M.png',
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
+            },
+            T: { 
+                upper: 'T', lower: 't', color: '#baffc9',
+                upperImg: 'U-T.png', lowerImg: 'L-T.png', 
+                baseImg: 'Snake-T.png',
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
+            },
+            F: { 
+                upper: 'F', lower: 'f', color: '#bae1ff',
+                upperImg: 'U-F.png', lowerImg: 'L-F.png', 
+                baseImg: 'Snake-F.png',
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
+            },
+            A: { 
+                upper: 'A', lower: 'a', color: '#e5ccff',
+                upperImg: 'U-A.png', lowerImg: 'L-A.png', 
+                baseImg: 'Snake-A.png',
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
+            }
+        };
+
+        let currentThemes = [];
+        let score = 0;
+        let targetScore = 5;
+        let bubbles = [];
+        let animationFrameId;
+        let activeBubble = null;
+        let isDragging = false;
+        let offsetX, offsetY;
+        let lastSpawnTime = 0; // 用於記錄上次產生泡泡的時間
+
+        // 輪流產生大小寫的標記
+        let spawnUppercaseNext = true;
+
+        const introScreen = document.getElementById('intro-screen');
+        const gameContainer = document.getElementById('game-container');
+        const winScreen = document.getElementById('win-screen');
+        const scoreDisplay = document.getElementById('score-display');
+        const basesContainer = document.getElementById('bases-container');
+        const bubblesLayer = document.getElementById('bubbles-layer');
+        const themeLabel = document.getElementById('theme-label');
+
+        function startGame(themes) {
+            currentThemes = themes;
+            score = 0;
+            /* 練習改為 10 題，綜合挑戰改為 30 題 */
+            targetScore = themes.length === 1 ? 10 : 30;
+            spawnUppercaseNext = true; // 重置輪替狀態
+            
+            themeLabel.textContent = themes.length === 1 ? `Practice ${themes[0]}${themes[0].toLowerCase()}` : "All Letters";
+            
+            updateScoreDisplay();
+            introScreen.style.display = 'none';
+            winScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+
+            renderBases(themes);
+            
+            // 清理上一場的泡泡
+            bubblesLayer.innerHTML = '';
+            bubbles = [];
+
+            // 啟動遊戲迴圈 (強制讓第一顆泡泡馬上產生)
+            lastSpawnTime = performance.now() - 5000;
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function backToMenu() {
+            cancelAnimationFrame(animationFrameId);
+            gameContainer.style.display = 'none';
+            winScreen.style.display = 'none';
+            introScreen.style.display = 'flex';
+        }
+
+        function renderBases(themeLetters) {
+            basesContainer.innerHTML = '';
+            
+            // 如果是綜合挑戰模式，縮小基地大小以排版
+            if (themeLetters.length > 1) {
+                basesContainer.classList.add('multi-base');
+            } else {
+                basesContainer.classList.remove('multi-base');
+            }
+            
+            themeLetters.forEach(letter => {
+                const themeData = allLetters[letter];
+                
+                if (themeData.baseImg) {
+                    // 若有提供基地底圖 (例如 snake-1.png)
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'base-wrapper';
+                    
+                    // 1. 放入主圖檔
+                    const img = document.createElement('img');
+                    img.src = themeData.baseImg;
+                    img.className = 'main-base-img';
+                    wrapper.appendChild(img);
+                    
+                    // 2. 建立小寫觸發區 (Hitbox)
+                    const hitboxLower = document.createElement('div');
+                    hitboxLower.className = 'hitbox';
+                    hitboxLower.dataset.letter = letter;
+                    hitboxLower.dataset.isUpper = 'false';
+                    Object.assign(hitboxLower.style, themeData.hitboxLower);
+                    wrapper.appendChild(hitboxLower);
+                    
+                    // 3. 建立大寫觸發區 (Hitbox)
+                    const hitboxUpper = document.createElement('div');
+                    hitboxUpper.className = 'hitbox';
+                    hitboxUpper.dataset.letter = letter;
+                    hitboxUpper.dataset.isUpper = 'true';
+                    Object.assign(hitboxUpper.style, themeData.hitboxUpper);
+                    wrapper.appendChild(hitboxUpper);
+
+                    basesContainer.appendChild(wrapper);
+                } else {
+                    // 若沒有提供單一圖片的備用配置
+                    const fallbackGroup = document.createElement('div');
+                    fallbackGroup.className = 'fallback-base';
+                    
+                    const lowerBox = document.createElement('div');
+                    lowerBox.className = 'hitbox fallback-hitbox';
+                    lowerBox.dataset.letter = letter;
+                    lowerBox.dataset.isUpper = 'false';
+                    lowerBox.textContent = themeData.lower;
+                    
+                    const upperBox = document.createElement('div');
+                    upperBox.className = 'hitbox fallback-hitbox';
+                    upperBox.dataset.letter = letter;
+                    upperBox.dataset.isUpper = 'true';
+                    upperBox.textContent = themeData.upper;
+
+                    fallbackGroup.appendChild(lowerBox);
+                    fallbackGroup.appendChild(upperBox);
+                    basesContainer.appendChild(fallbackGroup);
+                }
+            });
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `⭐ ${score} / ${targetScore}`;
+        }
+
+        function spawnBubble() {
+            const letterKey = currentThemes[Math.floor(Math.random() * currentThemes.length)];
+            const letterData = allLetters[letterKey];
+            
+            // 嚴格輪流標記，確保大小寫機率絕對一致
+            const isUpper = spawnUppercaseNext;
+            spawnUppercaseNext = !spawnUppercaseNext; 
+
+            const displayChar = isUpper ? letterData.upper : letterData.lower;
+            const imgPath = isUpper ? letterData.upperImg : letterData.lowerImg;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.dataset.letter = letterKey;
+            bubble.dataset.isUpper = isUpper;
+            
+            const inner = document.createElement('div');
+            inner.className = 'bubble-inner';
+            
+            if (imgPath) {
+                const img = document.createElement('img');
+                img.src = imgPath;
+                img.draggable = false;
+                inner.appendChild(img);
+            } else {
+                bubble.classList.add('text-only');
+                inner.textContent = displayChar;
+                inner.style.color = isUpper ? '#d35400' : '#0097a7';
+            }
+            
+            bubble.appendChild(inner);
+
+            const startX = Math.random() * (window.innerWidth - 100);
+            let y = window.innerHeight;
+            let x = startX;
+            
+            bubble.style.transform = `translate(${x}px, ${y}px)`;
+            
+            bubble.addEventListener('mousedown', startDrag);
+            bubble.addEventListener('touchstart', startDrag, {passive: false});
+
+            bubblesLayer.appendChild(bubble);
+            
+            // 隨分數提高，增加泡泡上升的基礎速度 (每得一分速度加 0.15)
+            let currentSpeed = 0.8 + (score * 0.15);
+
+            bubbles.push({
+                element: bubble,
+                x: x,
+                y: y,
+                speed: currentSpeed, // 使用動態速度
+                wobbleOffset: Math.random() * Math.PI * 2,
+                isDragging: false
+            });
+        }
+
+        function gameLoop(timestamp) {
+            if (!timestamp) timestamp = performance.now();
+            
+            // 隨分數提高，縮短泡泡產生的時間間隔 (最慢 2500ms，最快 800ms)
+            let currentSpawnInterval = Math.max(800, 2500 - (score * 150));
+            if (timestamp - lastSpawnTime > currentSpawnInterval) {
+                spawnBubble();
+                lastSpawnTime = timestamp;
+            }
+
+            // 清除所有的發亮提示
+            const hitboxes = document.querySelectorAll('.hitbox');
+            hitboxes.forEach(h => h.classList.remove('highlight'));
+
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                let b = bubbles[i];
+                
+                if (!b.isDragging) {
+                    b.y -= b.speed;
+                    const wobble = Math.sin(b.y * 0.02 + b.wobbleOffset) * 1;
+                    b.x += wobble;
+                    
+                    b.element.style.transform = `translate(${b.x}px, ${b.y}px)`;
+
+                    if (b.y < -100) {
+                        b.element.remove();
+                        bubbles.splice(i, 1);
+                        continue;
+                    }
+                } else {
+                    // 拖曳中，檢查是否懸停在任何 hitbox 上並給予視覺提示
+                    checkHover(b.element, hitboxes);
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- 拖曳邏輯 ---
+        function startDrag(e) {
+            e.preventDefault();
+            const bIndex = bubbles.findIndex(b => b.element === this);
+            if (bIndex === -1) return;
+            
+            activeBubble = bubbles[bIndex];
+            activeBubble.isDragging = true;
+            this.style.zIndex = '100';
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            offsetX = clientX - activeBubble.x;
+            offsetY = clientY - activeBubble.y;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, {passive: false});
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function drag(e) {
+            if (!activeBubble) return;
+            e.preventDefault();
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+
+            activeBubble.x = clientX - offsetX;
+            activeBubble.y = clientY - offsetY;
+            
+            activeBubble.element.style.transform = `translate(${activeBubble.x}px, ${activeBubble.y}px)`;
+        }
+
+        function endDrag(e) {
+            if (!activeBubble) return;
+
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+
+            // 改為與 hitbox 進行碰撞偵測
+            const hitboxes = document.querySelectorAll('.hitbox');
+            checkCollision(activeBubble.element, hitboxes);
+
+            activeBubble.element.style.zIndex = '80'; // 放開後恢復至較高的泡泡層級
+            activeBubble.isDragging = false;
+            activeBubble = null;
+        }
+
+        function getCenter(element) {
+            const rect = element.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        function checkHover(bubbleEl, hitboxes) {
+            const bCenter = getCenter(bubbleEl);
+            
+            hitboxes.forEach(hitbox => {
+                const boxRect = hitbox.getBoundingClientRect();
+                if (bCenter.x > boxRect.left && bCenter.x < boxRect.right &&
+                    bCenter.y > boxRect.top && bCenter.y < boxRect.bottom) {
+                    hitbox.classList.add('highlight');
+                }
+            });
+        }
+
+        // --- 音效處理函數 ---
+        const successPhrases = ['good job.mp3', 'great.mp3', 'way to go.mp3'];
+        
+        function playSuccessFeedback() {
+            const correctAudio = new Audio('correct.mp3');
+            correctAudio.play().catch(e => console.log('Audio playback failed:', e));
+            
+            // 當 correct.mp3 結束時，隨機挑選一句讚美音效播放
+            correctAudio.onended = () => {
+                const randomPhrase = successPhrases[Math.floor(Math.random() * successPhrases.length)];
+                const phraseAudio = new Audio(randomPhrase);
+                phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
+            };
+        }
+
+        function playErrorFeedback() {
+            const errorAudio = new Audio('error.mp3');
+            errorAudio.play().catch(e => console.log('Audio playback failed:', e));
+            
+            // 當 error.mp3 結束時，播放 try again.mp3
+            errorAudio.onended = () => {
+                const tryAgainAudio = new Audio('try again.mp3');
+                tryAgainAudio.play().catch(e => console.log('Audio playback failed:', e));
+            };
+        }
+
+        function checkCollision(bubbleEl, hitboxes) {
+            const bCenter = getCenter(bubbleEl);
+            let matched = false;
+            let targetHitbox = null; // 記錄被丟放的基地位置
+
+            for (let hitbox of hitboxes) {
+                const boxRect = hitbox.getBoundingClientRect();
+                if (bCenter.x > boxRect.left && bCenter.x < boxRect.right &&
+                    bCenter.y > boxRect.top && bCenter.y < boxRect.bottom) {
+                    
+                    targetHitbox = hitbox;
+
+                    // 1. 檢查字母是否相同
+                    if (bubbleEl.dataset.letter === hitbox.dataset.letter) {
+                        
+                        // 2. 嚴格檢查大小寫：大寫配大寫，小寫配小寫
+                        const isBubbleUpper = bubbleEl.dataset.isUpper === 'true';
+                        const isHitboxUpper = hitbox.dataset.isUpper === 'true';
+
+                        if (isBubbleUpper === isHitboxUpper) {
+                            // 配對成功！
+                            matched = true;
+                            
+                            // 成功：連續音效
+                            playSuccessFeedback();
+
+                            // 泡泡放大特效 (套用在內層，避免覆蓋外層定位)
+                            const innerEl = bubbleEl.querySelector('.bubble-inner');
+                            if(innerEl) innerEl.style.animation = 'pop 0.4s forwards';
+                            
+                            const idx = bubbles.findIndex(b => b.element === bubbleEl);
+                            if (idx > -1) bubbles.splice(idx, 1);
+                            
+                            setTimeout(() => bubbleEl.remove(), 400);
+                            
+                            score++;
+                            updateScoreDisplay();
+
+                            if (score >= targetScore) {
+                                setTimeout(showWinScreen, 500);
+                            }
+                            break; // 跳出迴圈
+                        }
+                    }
+                }
+            }
+
+            if (!matched) {
+                // 配對失敗：左右抖動提示與音效
+                const innerEl = bubbleEl.querySelector('.bubble-inner');
+                if(innerEl) innerEl.classList.add('wrong');
+                playErrorFeedback();
+
+                setTimeout(() => {
+                    if(innerEl) innerEl.classList.remove('wrong');
+                }, 400);
+            }
+        }
+
+        function showWinScreen() {
+            cancelAnimationFrame(animationFrameId);
+            gameContainer.style.display = 'none';
+            winScreen.style.display = 'flex';
+        }
+
+    </script>
+</body>
+</html>
