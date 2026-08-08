@@ -14,7 +14,7 @@
         }
 
         body {
-            /* 柔和的單色背景，符合 reference 圖的風格 */
+            /* 柔和的單色背景 */
             background-color: #f8f6f0;
             overflow: hidden;
             touch-action: none;
@@ -51,10 +51,10 @@
             width: 100%;
         }
 
-        /* 新增標題圖片專用樣式 */
+        /* 標題圖片專用樣式 */
         .title-image {
             max-width: 95%;
-            width: 840px; /* 放大標題圖片 */
+            width: 840px;
             height: auto;
             margin-bottom: 20px;
 
@@ -64,7 +64,6 @@
             object-fit: contain;
             pointer-events: none;
             user-select: none;
-            /* 加上輕微浮動動畫，讓畫面更生動 */
             animation: float 3s ease-in-out infinite;
         }
 
@@ -76,7 +75,7 @@
         .guide-text {
             font-family: 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
             font-size: 22px;
-            color: #959595; /* 配合背景變為柔和的灰色 */
+            color: #959595;
             margin-bottom: 30px;
             text-align: center;
             max-width: 80%;
@@ -87,25 +86,24 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px; /* 縮小按鈕間距 */
-            max-width: 480px; /* 縮小主題區塊整體寬度 */
+            gap: 15px;
+            max-width: 480px;
             width: 90%;
         }
 
         .theme-btn {
-            padding: 15px 10px; /* 縮小按鈕 padding */
+            padding: 15px 10px;
             font-size: 36px;
             font-family: 'Fredoka One', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
-            border-radius: 16px; /* 圓角調整得更柔和 */
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.1s;
             text-align: center;
             flex: 1 1 calc(33.333% - 15px);
             min-width: 120px;
-            border: none; /* 移除原本的線條外框，改用純 shadow 做立體效果 */
+            border: none;
         }
         
-        /* 參照附圖的色票重新設定按鈕 */
         .theme-btn:nth-child(1) { background-color: #f7afb1; box-shadow: 0 6px 0 #df8a8c; color: white; }
         .theme-btn:nth-child(2) { background-color: #ffeaa2; box-shadow: 0 6px 0 #ecd16d; color: #a46f34; }
         .theme-btn:nth-child(3) { background-color: #a29cfe; box-shadow: 0 6px 0 #7e75db; color: white; }
@@ -179,19 +177,19 @@
             align-items: flex-start;
             z-index: 20;
             padding: 0 20px;
-            pointer-events: none; /* 讓拖曳事件穿透容器，直接觸發 hitbox */
+            pointer-events: none;
         }
 
         .base-wrapper {
             position: relative;
-            /* 將基地圖片大幅放大顯示 */
-            width: 800px; /* 從 480px 放大到 800px */
-            max-width: 95vw; /* 確保在手機上也能佔滿畫面寬度 */
+            width: 800px; 
+            max-width: 95vw;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 10px;
             transition: all 0.3s;
+            transform: translateY(-10%); /* 使整個基地圖樣往上移動 10% */
         }
 
         .multi-base .base-wrapper {
@@ -207,24 +205,20 @@
             user-select: none;
         }
 
-        /* 圖檔上對應大小寫的觸發區域（Hitbox） */
         .hitbox {
             position: absolute;
             border-radius: 50%;
-            pointer-events: auto; /* 允許碰撞偵測 */
+            pointer-events: auto;
             transition: all 0.2s;
-            /* 預設為隱藏，當泡泡靠近時會發亮提示 */
             background-color: rgba(255, 255, 255, 0);
         }
 
-        /* 當泡泡拖曳至觸發區上方時的發亮效果 */
         .hitbox.highlight {
             background-color: rgba(255, 255, 255, 0.4);
             box-shadow: inset 0 0 0 4px #fff;
             transform: scale(1.1);
         }
 
-        /* 針對沒有提供單一圖片的其他字母（M, T, F, A）的備用樣式 */
         .fallback-base {
             display: flex;
             gap: 50px;
@@ -265,7 +259,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 80; /* 將泡泡層提升到最上層 */
+            z-index: 80;
         }
 
         .bubble {
@@ -275,7 +269,7 @@
             cursor: grab;
             user-select: none;
             touch-action: none;
-            z-index: 80; /* 提升泡泡的初始層級 */
+            z-index: 80;
             pointer-events: auto;
         }
 
@@ -292,13 +286,11 @@
         .bubble-inner img {
             width: 100%;
             height: 100%;
-            /* 讓圖片完整顯示不裁切 */
             object-fit: contain; 
             pointer-events: none;
             user-select: none;
         }
 
-        /* 沒提供圖片時的純文字泡泡備用樣式 */
         .bubble.text-only .bubble-inner {
             background-color: white;
             border: 3px solid #ddd;
@@ -351,7 +343,7 @@
             box-shadow: 0 0 0 transparent;
         }
 
-        /* 裝飾性背景元素 (低飽和插畫色系) */
+        /* 裝飾性背景元素 */
         .bg-deco {
             position: absolute;
             bottom: 0;
@@ -377,7 +369,7 @@
     <!-- 選單畫面 -->
     <div id="intro-screen">
         <div class="content-wrapper">
-            <img src="title.png" alt="Magic Letter Island" class="title-image">
+            <img src="title.png" alt="Letter Game" class="title-image">
             <p class="guide-text">Choose a theme to start playing!<br><span style="font-size: 16px; color: #b5b5b5;">Goal: Drag the matching letters to their correct base! (Upper to Upper, Lower to Lower)</span></p>
             
             <div class="theme-grid">
@@ -418,41 +410,36 @@
         const allLetters = {
             S: { 
                 upper: 'S', lower: 's', color: '#ffb3ba', 
-                upperImg: 'U-S.png', lowerImg: 'L-S.png', 
-                baseImg: 'snake-S.png',
-                /* 
-                   根據蛇圖案設定的觸發區域 (Hitbox) 參數
-                   預設：粉紅色 s 在左邊，黃色 S 在中間
-                   百分比是相對於整張 baseImg 的寬高
-                */
-                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' }, // 對應左側粉紅圓圈 's'
-                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' } // 對應右側黃色圓圈 'S'
+                upperImg: 'u-s.png', lowerImg: 'l-s.png', 
+                baseImg: 'snake-s.png',
+                hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' }, 
+                hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' } 
             },
             M: { 
                 upper: 'M', lower: 'm', color: '#ffdfba',
-                upperImg: 'U-M.png', lowerImg: 'L-M.png', 
-                baseImg: 'snake-M.png',
+                upperImg: 'u-m.png', lowerImg: 'l-m.png', 
+                baseImg: 'snake-m.png',
                 hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
                 hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
             },
             T: { 
                 upper: 'T', lower: 't', color: '#baffc9',
-                upperImg: 'U-T.png', lowerImg: 'L-T.png', 
-                baseImg: 'snake-T.png',
+                upperImg: 'u-t.png', lowerImg: 'l-t.png', 
+                baseImg: 'snake-t.png',
                 hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
                 hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
             },
             F: { 
                 upper: 'F', lower: 'f', color: '#bae1ff',
-                upperImg: 'U-F.png', lowerImg: 'L-F.png', 
-                baseImg: 'snake-F.png',
+                upperImg: 'u-f.png', lowerImg: 'l-f.png', 
+                baseImg: 'snake-f.png',
                 hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
                 hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
             },
             A: { 
                 upper: 'A', lower: 'a', color: '#e5ccff',
-                upperImg: 'U-A.png', lowerImg: 'L-A.png', 
-                baseImg: 'snake-A.png',
+                upperImg: 'u-a.png', lowerImg: 'l-a.png', 
+                baseImg: 'snake-a.png',
                 hitboxLower: { left: '3%', top: '15%', width: '30%', height: '70%' },
                 hitboxUpper: { left: '46%', top: '10%', width: '30%', height: '80%' }
             }
@@ -466,9 +453,7 @@
         let activeBubble = null;
         let isDragging = false;
         let offsetX, offsetY;
-        let lastSpawnTime = 0; // 用於記錄上次產生泡泡的時間
-
-        // 輪流產生大小寫的標記
+        let lastSpawnTime = 0; 
         let spawnUppercaseNext = true;
 
         const introScreen = document.getElementById('intro-screen');
@@ -479,12 +464,56 @@
         const bubblesLayer = document.getElementById('bubbles-layer');
         const themeLabel = document.getElementById('theme-label');
 
+        // --- 音效處理與預載 (Audio Preloading) ---
+        // 1. 在全域先將所有音效建立好，讓瀏覽器可以在背景提早載入與解碼
+        const audioAssets = {
+            correct: new Audio('correct.mp3'),
+            error: new Audio('error.mp3'),
+            tryAgain: new Audio('try again.mp3'),
+            goodJob: new Audio('good job.mp3'),
+            great: new Audio('great.mp3'),
+            wayToGo: new Audio('way to go.mp3')
+        };
+
+        // 強制設定為自動預載
+        Object.values(audioAssets).forEach(audio => {
+            audio.preload = 'auto';
+        });
+
+        const successPhrasesKeys = ['goodJob', 'great', 'wayToGo'];
+        
+        function playSuccessFeedback() {
+            // 2. 播放前將時間歸零，確保可以連續快速觸發
+            audioAssets.correct.currentTime = 0;
+            audioAssets.correct.play().catch(e => console.log('Audio playback failed:', e));
+            
+            // 當 correct 音效結束時，延遲 0.5 秒後播放隨機的人聲讚美
+            audioAssets.correct.onended = () => {
+                setTimeout(() => {
+                    const randomKey = successPhrasesKeys[Math.floor(Math.random() * successPhrasesKeys.length)];
+                    const phraseAudio = audioAssets[randomKey];
+                    phraseAudio.currentTime = 0;
+                    phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
+                }, 200); 
+            };
+        }
+
+        function playErrorFeedback() {
+            audioAssets.error.currentTime = 0;
+            audioAssets.error.play().catch(e => console.log('Audio playback failed:', e));
+            
+            // 當 error 音效結束時，播放 try again.mp3
+            audioAssets.error.onended = () => {
+                audioAssets.tryAgain.currentTime = 0;
+                audioAssets.tryAgain.play().catch(e => console.log('Audio playback failed:', e));
+            };
+        }
+
         function startGame(themes) {
             currentThemes = themes;
             score = 0;
-            /* 練習改為 10 題，綜合挑戰改為 30 題 */
             targetScore = themes.length === 1 ? 10 : 30;
-            spawnUppercaseNext = true; // 重置輪替狀態
+            spawnUppercaseNext = true; 
             
             themeLabel.textContent = themes.length === 1 ? `Practice ${themes[0]}${themes[0].toLowerCase()}` : "All Letters";
             
@@ -495,11 +524,9 @@
 
             renderBases(themes);
             
-            // 清理上一場的泡泡
             bubblesLayer.innerHTML = '';
             bubbles = [];
 
-            // 啟動遊戲迴圈 (強制讓第一顆泡泡馬上產生)
             lastSpawnTime = performance.now() - 5000;
             animationFrameId = requestAnimationFrame(gameLoop);
         }
@@ -514,7 +541,6 @@
         function renderBases(themeLetters) {
             basesContainer.innerHTML = '';
             
-            // 如果是綜合挑戰模式，縮小基地大小以排版
             if (themeLetters.length > 1) {
                 basesContainer.classList.add('multi-base');
             } else {
@@ -525,17 +551,14 @@
                 const themeData = allLetters[letter];
                 
                 if (themeData.baseImg) {
-                    // 若有提供基地底圖 (例如 snake-1.png)
                     const wrapper = document.createElement('div');
                     wrapper.className = 'base-wrapper';
                     
-                    // 1. 放入主圖檔
                     const img = document.createElement('img');
                     img.src = themeData.baseImg;
                     img.className = 'main-base-img';
                     wrapper.appendChild(img);
                     
-                    // 2. 建立小寫觸發區 (Hitbox)
                     const hitboxLower = document.createElement('div');
                     hitboxLower.className = 'hitbox';
                     hitboxLower.dataset.letter = letter;
@@ -543,7 +566,6 @@
                     Object.assign(hitboxLower.style, themeData.hitboxLower);
                     wrapper.appendChild(hitboxLower);
                     
-                    // 3. 建立大寫觸發區 (Hitbox)
                     const hitboxUpper = document.createElement('div');
                     hitboxUpper.className = 'hitbox';
                     hitboxUpper.dataset.letter = letter;
@@ -553,7 +575,6 @@
 
                     basesContainer.appendChild(wrapper);
                 } else {
-                    // 若沒有提供單一圖片的備用配置
                     const fallbackGroup = document.createElement('div');
                     fallbackGroup.className = 'fallback-base';
                     
@@ -584,7 +605,6 @@
             const letterKey = currentThemes[Math.floor(Math.random() * currentThemes.length)];
             const letterData = allLetters[letterKey];
             
-            // 嚴格輪流標記，確保大小寫機率絕對一致
             const isUpper = spawnUppercaseNext;
             spawnUppercaseNext = !spawnUppercaseNext; 
 
@@ -623,14 +643,13 @@
 
             bubblesLayer.appendChild(bubble);
             
-            // 隨分數提高，增加泡泡上升的基礎速度 (每得一分速度加 0.15)
             let currentSpeed = 0.8 + (score * 0.15);
 
             bubbles.push({
                 element: bubble,
                 x: x,
                 y: y,
-                speed: currentSpeed, // 使用動態速度
+                speed: currentSpeed, 
                 wobbleOffset: Math.random() * Math.PI * 2,
                 isDragging: false
             });
@@ -639,14 +658,12 @@
         function gameLoop(timestamp) {
             if (!timestamp) timestamp = performance.now();
             
-            // 隨分數提高，縮短泡泡產生的時間間隔 (最慢 2500ms，最快 800ms)
             let currentSpawnInterval = Math.max(800, 2500 - (score * 150));
             if (timestamp - lastSpawnTime > currentSpawnInterval) {
                 spawnBubble();
                 lastSpawnTime = timestamp;
             }
 
-            // 清除所有的發亮提示
             const hitboxes = document.querySelectorAll('.hitbox');
             hitboxes.forEach(h => h.classList.remove('highlight'));
 
@@ -666,7 +683,6 @@
                         continue;
                     }
                 } else {
-                    // 拖曳中，檢查是否懸停在任何 hitbox 上並給予視覺提示
                     checkHover(b.element, hitboxes);
                 }
             }
@@ -674,7 +690,6 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        // --- 拖曳邏輯 ---
         function startDrag(e) {
             e.preventDefault();
             const bIndex = bubbles.findIndex(b => b.element === this);
@@ -717,11 +732,10 @@
             document.removeEventListener('mouseup', endDrag);
             document.removeEventListener('touchend', endDrag);
 
-            // 改為與 hitbox 進行碰撞偵測
             const hitboxes = document.querySelectorAll('.hitbox');
             checkCollision(activeBubble.element, hitboxes);
 
-            activeBubble.element.style.zIndex = '80'; // 放開後恢復至較高的泡泡層級
+            activeBubble.element.style.zIndex = '80'; 
             activeBubble.isDragging = false;
             activeBubble = null;
         }
@@ -746,36 +760,10 @@
             });
         }
 
-        // --- 音效處理函數 ---
-        const successPhrases = ['good job.mp3', 'great.mp3', 'way to go.mp3'];
-        
-        function playSuccessFeedback() {
-            const correctAudio = new Audio('correct.mp3');
-            correctAudio.play().catch(e => console.log('Audio playback failed:', e));
-            
-            // 當 correct.mp3 結束時，隨機挑選一句讚美音效播放
-            correctAudio.onended = () => {
-                const randomPhrase = successPhrases[Math.floor(Math.random() * successPhrases.length)];
-                const phraseAudio = new Audio(randomPhrase);
-                phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
-            };
-        }
-
-        function playErrorFeedback() {
-            const errorAudio = new Audio('error.mp3');
-            errorAudio.play().catch(e => console.log('Audio playback failed:', e));
-            
-            // 當 error.mp3 結束時，播放 try again.mp3
-            errorAudio.onended = () => {
-                const tryAgainAudio = new Audio('try again.mp3');
-                tryAgainAudio.play().catch(e => console.log('Audio playback failed:', e));
-            };
-        }
-
         function checkCollision(bubbleEl, hitboxes) {
             const bCenter = getCenter(bubbleEl);
             let matched = false;
-            let targetHitbox = null; // 記錄被丟放的基地位置
+            let targetHitbox = null; 
 
             for (let hitbox of hitboxes) {
                 const boxRect = hitbox.getBoundingClientRect();
@@ -784,21 +772,16 @@
                     
                     targetHitbox = hitbox;
 
-                    // 1. 檢查字母是否相同
                     if (bubbleEl.dataset.letter === hitbox.dataset.letter) {
                         
-                        // 2. 嚴格檢查大小寫：大寫配大寫，小寫配小寫
                         const isBubbleUpper = bubbleEl.dataset.isUpper === 'true';
                         const isHitboxUpper = hitbox.dataset.isUpper === 'true';
 
                         if (isBubbleUpper === isHitboxUpper) {
-                            // 配對成功！
                             matched = true;
                             
-                            // 成功：連續音效
                             playSuccessFeedback();
 
-                            // 泡泡放大特效 (套用在內層，避免覆蓋外層定位)
                             const innerEl = bubbleEl.querySelector('.bubble-inner');
                             if(innerEl) innerEl.style.animation = 'pop 0.4s forwards';
                             
@@ -813,14 +796,13 @@
                             if (score >= targetScore) {
                                 setTimeout(showWinScreen, 500);
                             }
-                            break; // 跳出迴圈
+                            break; 
                         }
                     }
                 }
             }
 
             if (!matched) {
-                // 配對失敗：左右抖動提示與音效
                 const innerEl = bubbleEl.querySelector('.bubble-inner');
                 if(innerEl) innerEl.classList.add('wrong');
                 playErrorFeedback();
