@@ -76,7 +76,8 @@
             font-family: 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
             font-size: 22px;
             color: #959595;
-            margin-bottom: 30px;
+            margin-top: 10px; /* 🌟 新增這行，讓文字往下調 5px */
+            margin-bottom: 20px;
             text-align: center;
             max-width: 80%;
             font-weight: 700;
@@ -416,7 +417,7 @@
     <div id="intro-screen">
         <div class="content-wrapper">
             <img src="title.png" alt="Letter Game" class="title-image">
-            <p class="guide-text">Choose a theme to start playing!<br><span style="font-size: 16px; color: #b5b5b5;">Goal: Drag the matching letters to their correct base! (Upper to Upper, Lower to Lower)</span></p>
+            <p class="guide-text">Choose a theme to start playing!</p>
             
             <div class="theme-grid">
                 <button class="theme-btn" onclick="startGame(['S'])">Ss</button>
@@ -544,7 +545,7 @@
                     const phraseAudio = audioAssets[randomKey];
                     phraseAudio.currentTime = 0;
                     phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
-                }, 50); 
+                }, 500); 
             };
         }
 
