@@ -76,12 +76,12 @@
             font-family: 'Nunito', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
             font-size: 22px;
             color: #959595;
-            margin-top: 10px; /* 🌟 新增這行，讓文字往下調 5px */
+            margin-top: 10px; 
             margin-bottom: 20px;
             text-align: center;
             max-width: 80%;
             font-weight: 700;
-            line-height: 1.8; /* 🌟 增加行距，讓兩行文字不會太擁擠 */
+            line-height: 1.8; 
             
             position: relative;
             top: -5vh;
@@ -178,12 +178,12 @@
         /* 基地區域 */
         #bases-container {
             position: absolute;
-            top: 80px;
+            bottom: 30px; /* 🌟 改為貼齊底部，讓小朋友容易按 */
             width: 100%;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            align-items: flex-start;
+            align-items: flex-end; /* 🌟 確保所有圖片對齊底部 */
             z-index: 20;
             padding: 0 20px;
             pointer-events: none;
@@ -198,7 +198,7 @@
             align-items: center;
             margin: 10px;
             transition: all 0.3s;
-            transform: translateY(-10%); /* 使整個基地圖樣往上移動 10% */
+            transform: translateY(-10%); 
         }
 
         .multi-base .base-wrapper {
@@ -218,7 +218,6 @@
             position: absolute;
             border-radius: 50%;
             pointer-events: auto;
-            /* 取消所有的背景色與光暈特效設定 */
         }
 
         .fallback-base {
@@ -365,7 +364,7 @@
             z-index: 2;
         }
 
-        /* 🌟 新增：灑花特效 CSS */
+        /* 灑花特效 CSS */
         .confetti {
             position: absolute;
             top: -20px;
@@ -379,13 +378,12 @@
             100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
 
-
         /* 酷炫勝利畫面樣式 */
         #win-screen h1.win-title {
             font-size: 120px; 
             font-family: 'Fredoka One', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
-            font-weight: 900; /* 🌟 設為最粗體 */
-            -webkit-text-stroke: 1.8px #fff; /* 🌟 加上細白邊讓字體更顯厚實突出 */
+            font-weight: 900; 
+            -webkit-text-stroke: 1.8px #fff; 
             background: linear-gradient(45deg, #ff9f43, #ff6b6b, #feca57);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -397,8 +395,8 @@
         #win-screen p.win-subtitle {
             font-size: 36px; 
             line-height: 2; 
-            color: #555; /* 🌟 稍微加深副標題顏色 */
-            font-weight: 900; /* 🌟 副標題同步加粗 */
+            color: #555; 
+            font-weight: 900; 
             text-align: center;
             max-width: 85%;
         }
@@ -407,7 +405,6 @@
             0% { transform: translateY(0) scale(1); }
             100% { transform: translateY(-10px) scale(1.06); }
         }
-
 
     </style>
 </head>
@@ -517,7 +514,6 @@
         bgm.preload = 'auto';
 
         // --- 音效處理與預載 (Audio Preloading) ---
-        // 1. 在全域先將所有音效建立好，讓瀏覽器可以在背景提早載入與解碼
         const audioAssets = {
             correct: new Audio('correct.mp3'),
             error: new Audio('error.mp3'),
@@ -525,7 +521,7 @@
             goodJob: new Audio('good job.mp3'),
             great: new Audio('great.mp3'),
             wayToGo: new Audio('way to go.mp3'),
-            win: new Audio('win.mp3') // 🌟 新增：破關音效
+            win: new Audio('win.mp3') 
         };
 
         // 強制設定為自動預載
@@ -540,12 +536,11 @@
             audioAssets.correct.play().catch(e => console.log('Audio playback failed:', e));
             
             audioAssets.correct.onended = () => {
-                setTimeout(() => {
-                    const randomKey = successPhrasesKeys[Math.floor(Math.random() * successPhrasesKeys.length)];
-                    const phraseAudio = audioAssets[randomKey];
-                    phraseAudio.currentTime = 0;
-                    phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
-                }, 500); 
+                // 🌟 移除 setTimeout，讓語音馬上接著播放
+                const randomKey = successPhrasesKeys[Math.floor(Math.random() * successPhrasesKeys.length)];
+                const phraseAudio = audioAssets[randomKey];
+                phraseAudio.currentTime = 0;
+                phraseAudio.play().catch(e => console.log('Audio playback failed:', e));
             };
         }
 
@@ -554,6 +549,7 @@
             audioAssets.error.play().catch(e => console.log('Audio playback failed:', e));
             
             audioAssets.error.onended = () => {
+                // 🌟 答錯的語音原本就是馬上播放的，維持不變
                 audioAssets.tryAgain.currentTime = 0;
                 audioAssets.tryAgain.play().catch(e => console.log('Audio playback failed:', e));
             };
@@ -589,7 +585,7 @@
             cancelAnimationFrame(animationFrameId);
             bgm.pause(); // 停止 BGM
             
-            // 🌟 返回選單時清除殘留的灑花
+            // 返回選單時清除殘留的灑花
             document.querySelectorAll('.confetti').forEach(e => e.remove());
             
             gameContainer.style.display = 'none';
@@ -691,7 +687,7 @@
             bubble.appendChild(inner);
 
             const startX = Math.random() * (window.innerWidth - 100);
-            let y = window.innerHeight;
+            let y = -100; // 🌟 改從畫面最上方外側出現
             let x = startX;
             
             bubble.style.transform = `translate(${x}px, ${y}px)`;
@@ -726,13 +722,13 @@
                 let b = bubbles[i];
                 
                 if (!b.isDragging) {
-                    b.y -= b.speed;
+                    b.y += b.speed; // 🌟 座標改為加號，讓泡泡由上往下掉
                     const wobble = Math.sin(b.y * 0.02 + b.wobbleOffset) * 1;
                     b.x += wobble;
                     
                     b.element.style.transform = `translate(${b.x}px, ${b.y}px)`;
 
-                    if (b.y < -100) {
+                    if (b.y > window.innerHeight + 100) { // 🌟 判斷條件改為超出畫面底部則移除
                         b.element.remove();
                         bubbles.splice(i, 1);
                         continue;
@@ -855,18 +851,18 @@
             cancelAnimationFrame(animationFrameId);
             bgm.pause(); // 停止 BGM
             
-            // 🌟 播放勝利音效
+            // 播放勝利音效
             audioAssets.win.currentTime = 0;
             audioAssets.win.play().catch(e => console.log('Audio playback failed:', e));
             
-            // 🌟 觸發灑花特效
+            // 觸發灑花特效
             createConfetti();
 
             gameContainer.style.display = 'none';
             winScreen.style.display = 'flex';
         }
 
-        // 🌟 新增：產生隨機灑花的函數
+        // 產生隨機灑花的函數
         function createConfetti() {
             const colors = ['#f7afb1', '#ffeaa2', '#a29cfe', '#79ebd0', '#f4b4a1'];
             const winScreenEl = document.getElementById('win-screen');
