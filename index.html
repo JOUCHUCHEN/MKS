@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>麦卡思线上课件系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f0f9ff;
+            overscroll-behavior: none; 
+            -webkit-user-select: none; 
+            user-select: none;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased text-slate-800 overflow-hidden flex flex-col">
+
+    <div id="home-view" class="flex-grow flex flex-col h-screen overflow-y-auto w-full">
+        <header class="bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg py-4 px-4 sm:px-8 flex items-center relative sticky top-0 z-10 border-b-4 border-sky-600/50">
+            <img src="img/mkslogo.png" alt="麦卡思" class="h-12 sm:h-16 object-contain" onerror="this.style.display='none'">
+            <div class="flex-grow flex justify-center">
+                <h1 class="text-3xl sm:text-4xl font-black tracking-wide text-center drop-shadow-md text-white mr-12 sm:mr-16">
+                    麦卡思线上课件系统
+                </h1>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 md:p-12 w-full max-w-6xl mx-auto flex flex-col items-center justify-start">
+            <div id="category-grid" class="w-full grid grid-cols-1 md:grid-cols-2 gap-10 mt-10 justify-items-center">
+                <div onclick="showCourses('K1')" class="w-full max-w-md bg-white rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden border-4 border-white ring-4 ring-sky-200 group relative">
+                    <div class="h-64 w-full bg-sky-50 relative overflow-hidden flex items-center justify-center p-4">
+                        <img src="img/showandtell1.png" alt="K1" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/bae6fd/0369a1?text=K1'">
+                    </div>
+                    <div class="p-6 bg-gradient-to-b from-sky-50 to-white text-center">
+                        <h3 class="text-3xl font-black text-sky-600 mb-2">K1</h3>
+                    </div>
+                </div>
+
+                <div onclick="showCourses('K2')" class="w-full max-w-md bg-white rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden border-4 border-white ring-4 ring-sky-200 group relative">
+                    <div class="h-64 w-full bg-sky-50 relative overflow-hidden flex items-center justify-center p-4">
+                        <img src="img/showandtell2.png" alt="K2" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/bae6fd/0369a1?text=K2'">
+                    </div>
+                    <div class="p-6 bg-gradient-to-b from-sky-50 to-white text-center">
+                        <h3 class="text-3xl font-black text-sky-600 mb-2">K2</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="subcourse-container" class="w-full hidden flex-col animate-fade-in mt-4">
+                <div class="flex justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm border-2 border-sky-100">
+                    <h2 class="text-3xl font-black text-sky-600 flex items-center gap-3">
+                        K2
+                    </h2>
+                    <button onclick="backToCategory()" class="px-5 py-2.5 bg-yellow-300 hover:bg-yellow-400 text-yellow-900 rounded-xl transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 font-bold shadow-sm">
+                        <i class="ph-bold ph-arrow-left"></i> 返回
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full" id="course-grid">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const courses = [
+            // K1 单元
+            { id: 'H85-86', path: 'K1H8586', category: 'K1' },
+            { id: 'H87-88', path: 'K1H8788', category: 'K1' },
+            { id: 'H89-90', path: 'K1H8990', category: 'K1' },
+            { id: 'H91-92', path: 'K1H9192', category: 'K1' },
+            { id: 'H93-94', path: 'K1H9394', category: 'K1' },
+            { id: 'H95-96', path: 'K1H9596', category: 'K1' },
+            { id: 'H97-98', path: 'K1H9798', category: 'K1' },
+            { id: 'H99-100', path: 'K1H99100', category: 'K1' },
+            { id: 'H101-102', path: 'K1H101102', category: 'K1' },
+            { id: 'H103-104', path: 'K1H103104', category: 'K1' },
+            { id: 'H105-106', path: 'K1H105106', category: 'K1' },
+            { id: 'H107-108', path: 'K1H107108', category: 'K1' },
+            { id: 'H109-110', path: 'K1H109110', category: 'K1' },
+            { id: 'H111-112', path: 'K1H111112', category: 'K1' },
+            { id: 'H113-114', path: 'K1H113114', category: 'K1' },
+            { id: 'H115-116', path: 'K1H115116', category: 'K1' },
+            { id: 'H117-118', path: 'K1H117118', category: 'K1' },
+            { id: 'H119-120', path: 'K1H119120', category: 'K1' },
+            { id: 'H121-122', path: 'K1H121122', category: 'K1' },
+            { id: 'H123-124', path: 'K1H123124', category: 'K1' },
+            { id: 'H125-126', path: 'K1H125126', category: 'K1' },
+
+            // K2 单元
+            { id: 'H1-2', path: 'K2H0102', category: 'K2' },
+            { id: 'H22-23', path: 'K2H2223', category: 'K2' },
+            { id: 'H123-124', path: 'K2H123124', category: 'K2' },
+            { id: 'H125-126', path: 'K2H125126', category: 'K2' },
+            { id: 'H127-128', path: 'K2H127128', category: 'K2' },
+            { id: 'H129-130', path: 'K2H129130', category: 'K2' }
+        ];
+
+        const dom = {
+            categoryGrid: document.getElementById('category-grid'),
+            subcourseContainer: document.getElementById('subcourse-container'),
+            courseGrid: document.getElementById('course-grid')
+        };
+
+        let currentCategory = ''; // 记录当前选中的大分类 (K1 或是 K2)
+
+        function showCourses(categoryName) {
+            currentCategory = categoryName;
+            dom.categoryGrid.classList.add('hidden');
+            dom.subcourseContainer.classList.remove('hidden');
+            dom.subcourseContainer.classList.add('flex');
+            const titleEl = dom.subcourseContainer.querySelector('h2');
+            titleEl.innerHTML = `${categoryName}`;
+
+            // 每次点进分类时，先清空网格，再动态渲染属于该分类的单元
+            dom.courseGrid.innerHTML = '';
+            const avatarTypes = ['benny(頭)', 'fifi(頭)', 'prikly(頭)'];
+            const filteredCourses = courses.filter(c => c.category === categoryName);
+
+            filteredCourses.forEach((course, index) => {
+                const typeIndex = (Math.floor(index / 3) + (index % 3)) % 3;
+                const avatarSrc = `img/${avatarTypes[typeIndex]}.png`;
+                
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-3xl shadow-md hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden border-4 border-sky-100 group flex flex-row relative h-28 sm:h-32`;
+                card.onclick = () => openCourse(course.id);
+                card.innerHTML = `
+                    <div class="w-2/5 h-full relative overflow-hidden shrink-0 bg-sky-50 flex items-center justify-center p-3 border-r-2 border-dashed border-sky-200">
+                        <img src="${avatarSrc}" alt="${course.id}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-700" onerror="this.src='https://placehold.co/150x150/bae6fd/0369a1?text=Face'">
+                    </div>
+                    <div class="w-3/5 p-2 sm:p-4 flex-grow flex items-center justify-center relative bg-gradient-to-l from-sky-50 to-white">
+                        <h3 class="text-xl sm:text-2xl font-black font-mono text-sky-700">${course.id}</h3>
+                    </div>
+                    <div class="absolute inset-0 border-4 border-transparent group-hover:border-sky-300 rounded-3xl pointer-events-none transition-colors duration-300 z-10"></div>
+                `;
+                dom.courseGrid.appendChild(card);
+            });
+        }
+
+        function backToCategory() {
+            currentCategory = '';
+            dom.subcourseContainer.classList.add('hidden');
+            dom.subcourseContainer.classList.remove('flex');
+            dom.categoryGrid.classList.remove('hidden');
+        }
+
+        function openCourse(courseId) {
+            // 加入 currentCategory 检查，避免 K1 和 K2 同名单元的冲突
+            const course = courses.find(c => c.id === courseId && c.category === currentCategory);
+            if (!course) return;
+
+            // 根据点击的分类和单元，直接跳转到对应的独立 HTML 文件，例如：K2 的 H1-2 -> K2_H1-2.html
+            window.location.href = `${currentCategory}_${courseId}.html`;
+        }
+    </script>
+</body>
+</html>
