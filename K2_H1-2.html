@@ -469,18 +469,33 @@
             dom.prevBtn.disabled = currentPage === 1;
             dom.nextBtn.disabled = currentPage === totalPages;
 
+            // 切換頁面時，先隱藏互動元素，避免在背景圖載入前出現
+            dom.interactiveLayer.innerHTML = '';
+            dom.slideImg.classList.add('hidden');
+            dom.fallbackContent.classList.add('hidden');
+
             const filename = `${currentCourse.path}/img/投影片${currentPage}.png`;
             
-            dom.slideImg.classList.remove('hidden');
-            dom.fallbackContent.classList.add('hidden');
-            dom.slideImg.src = filename;
-
-            renderInteractiveElements();
-            restoreCanvasState();
+            // 使用 Image 物件預先載入背景圖
+            const img = new Image();
+            img.onload = function() {
+                dom.slideImg.src = filename;
+                dom.slideImg.classList.remove('hidden');
+                // 背景圖載入完成後，再渲染互動元素
+                renderInteractiveElements();
+                restoreCanvasState();
+            };
+            img.onerror = function() {
+                handleImageError();
+                // 即使圖片載入失敗，仍渲染互動元素
+                renderInteractiveElements();
+                restoreCanvasState();
+            };
+            img.src = filename;
         }
 
-        function handleImageError(img) {
-            img.classList.add('hidden');
+        function handleImageError() {
+            dom.slideImg.classList.add('hidden');
             dom.fallbackContent.classList.remove('hidden');
             dom.missingFileName.textContent = `${currentCourse.path}/img/投影片${currentPage}.png`;
         }
