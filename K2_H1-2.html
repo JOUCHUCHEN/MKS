@@ -6,8 +6,8 @@
     <title>H1-2 - 麦卡思线上课件系统</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- 替換為在中國大陸更穩定的 jsdelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web"></script>
     
     <style>
         body {
@@ -199,7 +199,8 @@
                 </button>
                 
                 <div class="aspect-video bg-black relative">
-                    <video id="course-video" class="w-full h-full" controls preload="none">
+                    <!-- 優化：將 preload 設為 auto，讓瀏覽器盡可能預先載入影片 -->
+                    <video id="course-video" class="w-full h-full" controls preload="auto">
                         <source src="" type="video/mp4">
                         您的浏览器不支持 HTML5 视频。
                     </video>
@@ -382,7 +383,7 @@
         };
 
         function initApp() {
-            dom.slideImg.onerror = function() { handleImageError(this); };
+            dom.slideImg.onerror = function() { handleImageError(); };
 
             canvas = dom.canvas;
             ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -466,6 +467,18 @@
             }
         }
 
+        function preloadNextAndPrevImages() {
+            // 背景偷偷下載上一頁與下一頁的圖片，解決中國大陸網路慢造成的翻頁卡頓
+            if (currentPage < totalPages) {
+                const imgNext = new Image();
+                imgNext.src = `${currentCourse.path}/img/投影片${currentPage + 1}.png`;
+            }
+            if (currentPage > 1) {
+                const imgPrev = new Image();
+                imgPrev.src = `${currentCourse.path}/img/投影片${currentPage - 1}.png`;
+            }
+        }
+
         function loadPageData() {
             dom.pageIndicator.textContent = currentPage;
             dom.pageSelect.value = currentPage;
@@ -479,7 +492,7 @@
 
             const filename = `${currentCourse.path}/img/投影片${currentPage}.png`;
             
-            // 使用 Image 物件預先載入背景圖
+            // 使用 Image 物件預先載入當前背景圖
             const img = new Image();
             img.onload = function() {
                 dom.slideImg.src = filename;
@@ -487,6 +500,11 @@
                 // 背景圖載入完成後，再渲染互動元素
                 renderInteractiveElements();
                 restoreCanvasState();
+                // 成功載入當前頁後，開始預載入下一頁和上一頁
+                preloadNextAndPrevImages();
+                
+                // 優化：在此頁面載入完成後，如果此頁面有影片，可以觸發瀏覽器背景預載入
+                preloadVideoForCurrentPage();
             };
             img.onerror = function() {
                 handleImageError();
@@ -495,6 +513,19 @@
                 restoreCanvasState();
             };
             img.src = filename;
+        }
+
+        // 新增：預先設定 video 標籤的 src 以觸發瀏覽器背景下載
+        function preloadVideoForCurrentPage() {
+            const courseConfig = pageConfigs;
+            if (courseConfig && courseConfig[currentPage]) {
+                const elements = courseConfig[currentPage].elements;
+                const videoEl = elements.find(el => el.type === 'video-btn' || el.type === 'video-direct');
+                if (videoEl && videoEl.src) {
+                    dom.courseVideo.src = videoEl.src;
+                    dom.courseVideo.load(); // 提示瀏覽器開始載入
+                }
+            }
         }
 
         function handleImageError() {
@@ -867,10 +898,17 @@
                 dom.videoModalContent.classList.add('w-full', 'max-w-6xl');
             }
             
-            dom.courseVideo.src = src;
+            // 優化：如果來源不同才重新指派，避免中斷已預載入的影片
+            if (!dom.courseVideo.src.includes(src)) {
+                dom.courseVideo.src = src;
+            }
+            
             dom.courseVideo.volume = 1.0; 
             
-            dom.courseVideo.play().catch(e => console.log("自动播放被阻止", e));
+            // 優化：延遲播放，等待模態視窗動畫完成，避免動畫和影片渲染同時進行導致卡頓
+            setTimeout(() => {
+                dom.courseVideo.play().catch(e => console.log("自动播放被阻止", e));
+            }, 300);
         }
 
         function closeVideoModal() {
@@ -881,7 +919,8 @@
             
             setTimeout(() => {
                 dom.videoModal.classList.add('hidden');
-                dom.courseVideo.src = ''; 
+                // 移除清空 src 的動作，以便下次可以更快播放
+                // dom.courseVideo.src = ''; 
             }, 300);
         }
 
