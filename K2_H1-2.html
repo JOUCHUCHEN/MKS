@@ -940,8 +940,7 @@
             // 檢查是否與上次開啟的影片不同
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
                 dom.courseVideo.src = ""; // 暫時清空避免播到舊檔
-                showToast('Loading...'); 
-
+                
                 try {
                     // 1. 強制加入時間戳並設定 no-store，1000% 擊穿 GitHub CDN 快取
                     const fetchUrl = `${cleanSrc}?t=${new Date().getTime()}`;
@@ -956,7 +955,7 @@
                     dom.courseVideo.src = blobUrl;
                     dom.courseVideo.dataset.originalSrc = cleanSrc; 
                     dom.courseVideo.load();
-                    showToast('Finished！');
+                    
                 } catch (error) {
                     console.error("内存加载失败，退回一般模式", error);
                     // 備用方案：如果 fetch 失敗，退回標準 HTML5 載入，依然加上隨機參數破快取
