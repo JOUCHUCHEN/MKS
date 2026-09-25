@@ -6,7 +6,7 @@
     <title>H1-2 - 麦卡思线上课件系统</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 替換為在中國大陸更穩定的 jsdelivr CDN -->
+    <!-- Phosphor Icons CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web"></script>
     
     <style>
@@ -26,7 +26,6 @@
         
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
-            /* 確保容器不超過畫面的最大寬高，並依比例自動縮放 */
             height: 100%;
             max-width: 100%;
             max-height: 100%;
@@ -101,7 +100,6 @@
         
         <header class="bg-slate-800 text-white h-14 px-4 flex justify-between items-center shrink-0 border-b border-slate-700">
             <div class="flex items-center gap-4">
-                <!-- 点击直接跳转回主页文件 -->
                 <button onclick="window.location.href='index.html'" class="flex items-center gap-2 hover:bg-slate-700 px-3 py-1.5 rounded-md transition-colors">
                     <i class="ph ph-arrow-left text-xl"></i>
                     <span class="hidden sm:inline">返回首页</span>
@@ -123,9 +121,7 @@
         <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
             <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center border-4 border-slate-700">
                 
-                <!-- 常駐底圖，解決切換時黑屏的問題 -->
                 <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none">
-                
                 <img id="slide-img" alt="幻灯片" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none hidden">
                 
                 <div id="fallback-content" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-0 hidden bg-slate-50">
@@ -198,8 +194,7 @@
                 </button>
                 
                 <div class="aspect-video bg-black relative">
-                    <!-- 重要修改：移除了 crossorigin，讓影片進度條可以正常透過 HTTP 206 拖曳讀取 -->
-                    <video id="course-video" class="w-full h-full" controls preload="auto">
+                    <video id="course-video" class="w-full h-full" controls preload="auto" playsinline>
                         <source src="" type="video/mp4">
                         您的浏览器不支持 HTML5 视频。
                     </video>
@@ -214,8 +209,7 @@
     </div>
 
     <script>
-        // --- 音量增強設定 (僅套用於一般音檔，影片不再使用 JS 增音) ---
-        const AUDIO_GAIN_MULTIPLIER = 1.5; // 音訊增強倍率
+        const AUDIO_GAIN_MULTIPLIER = 1.5;
 
         let audioContext = null;
         const audioNodes = new WeakMap(); 
@@ -234,33 +228,25 @@
 
         function applyGainNode(mediaElement, gainMultiplier) {
             if (!audioContext) return;
-            
             if (audioNodes.has(mediaElement)) {
                  audioNodes.get(mediaElement).gainNode.gain.value = gainMultiplier;
                  return;
             }
-
             try {
                 if (!mediaElement.crossOrigin) {
                      mediaElement.crossOrigin = "anonymous";
                 }
-
                 const source = audioContext.createMediaElementSource(mediaElement);
                 const gainNode = audioContext.createGain();
-                
                 gainNode.gain.value = gainMultiplier;
-                
                 source.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-                
                 audioNodes.set(mediaElement, { source, gainNode });
             } catch (error) {
-                console.warn("無法為此媒體套用音量增強 (可能是 CORS 限制):", error);
+                console.warn("無法為此媒體套用音量增強:", error);
             }
         }
-        // ------------------
 
-        // 独立文件的当前课程设定
         const currentCourse = { id: 'H1-2', path: 'K2H0102', category: 'K2' };
         let currentPage = 1;
         const totalPages = 28;
@@ -304,7 +290,6 @@
             },
             7: {
                 elements: [
-                    /* 加上 ?v=999 強制打破 GitHub CDN 與瀏覽器的頑固快取 */
                     { type: 'video-direct', src: 'K2H0102/video/abcsong_v3.mp4?v=999', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
@@ -556,8 +541,8 @@
                 const elements = courseConfig[currentPage].elements;
                 const videoEl = elements.find(el => el.type === 'video-btn' || el.type === 'video-direct');
                 if (videoEl && videoEl.src) {
-                    // 只預載，暫不 load()，等到 openCustomVideoModal 才強制 load
                     dom.courseVideo.src = videoEl.src;
+                    dom.courseVideo.load();
                 }
             }
         }
@@ -742,7 +727,7 @@
                 elements.forEach(el => {
                     if (el.type === 'audio') {
                         const btn = document.createElement('button');
-                        btn.className = 'absolute pointer-events-auto bg-sky-100 hover:bg-white text-sky-700 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(186,230,253,0.9)] transition-transform hover:scale-110 active:scale-95 z-10 w-12 h-12 md:w-16 h-16 md:h-16 border-4 border-white/90 backdrop-blur-sm';
+                        btn.className = 'absolute pointer-events-auto bg-sky-100 hover:bg-white text-sky-700 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(186,230,253,0.9)] transition-transform hover:scale-110 active:scale-95 z-10 w-12 h-12 md:w-16 md:h-16 border-4 border-white/90 backdrop-blur-sm';
                         btn.style = el.style;
                         btn.innerHTML = `<i class="ph-fill ${el.icon} text-3xl md:text-4xl text-sky-500"></i>`;
                         btn.title = '播放发音';
@@ -764,7 +749,7 @@
                     }
                     else if (el.type === 'video-btn') {
                         const btn = document.createElement('img');
-                        btn.className = 'absolute pointer-events-auto cursor-pointer w-12 h-12 md:w-16 h-16 hover:scale-110 transition-transform z-10 shadow-lg rounded-full bg-white/50 backdrop-blur-sm p-1';
+                        btn.className = 'absolute pointer-events-auto cursor-pointer w-12 h-12 md:w-16 md:h-16 hover:scale-110 transition-transform z-10 shadow-lg rounded-full bg-white/50 backdrop-blur-sm p-1';
                         btn.src = 'K2H0102/img/播放键.png';
                         btn.style = `${el.style} transform: translate(-50%, -50%);`; 
                         btn.onerror = function() { this.src = 'https://cdn-icons-png.flaticon.com/512/148/148744.png'; }
@@ -871,7 +856,6 @@
             currentAudio.volume = 1.0; 
             currentAudio.crossOrigin = "anonymous"; 
             
-            // 套用音量增強 (僅針對 Audio 元素)
             applyGainNode(currentAudio, AUDIO_GAIN_MULTIPLIER);
             
             currentAudio.play().catch(e => {
@@ -919,7 +903,6 @@
                 currentAudio.volume = 1.0; 
                 currentAudio.crossOrigin = "anonymous"; 
                 
-                // 套用音量增強
                 applyGainNode(currentAudio, AUDIO_GAIN_MULTIPLIER);
                 
                 currentAudio.play().catch(e => console.log(e));
@@ -939,22 +922,19 @@
             
             if (size === 'small') {
                 dom.videoModalContent.classList.remove('w-full', 'max-w-6xl');
-                dom.videoModalContent.classList.add('w-[50%]'); // 缩小50%
+                dom.videoModalContent.classList.add('w-[50%]');
             } else {
                 dom.videoModalContent.classList.remove('w-[50%]');
                 dom.videoModalContent.classList.add('w-full', 'max-w-6xl');
             }
             
-            if (!dom.courseVideo.src.includes(src)) {
+            const cleanSrc = src.split('?')[0];
+            if (!dom.courseVideo.src.includes(cleanSrc)) {
                 dom.courseVideo.src = src;
-                // 強制重新載入影片，解決切換來源時拖曳失效的 bug
                 dom.courseVideo.load();
             }
             
             dom.courseVideo.volume = 1.0; 
-            
-            // 【重要修改】：已取消對影片進行 applyGainNode，避免破壞瀏覽器 HTTP 206 進度條讀取機制。
-            // 若影片聲音太小，建議使用 HandBrake 直接調整 MP4 檔案的音軌 Gain。
             
             setTimeout(() => {
                 dom.courseVideo.play().catch(e => console.log("自动播放被阻止", e));
