@@ -304,7 +304,8 @@
             },
             7: {
                 elements: [
-                    { type: 'video-direct', src: 'K2H0102/video/abcsong_v3.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
+                    /* 加上 ?v=999 強制打破 GitHub CDN 與瀏覽器的頑固快取 */
+                    { type: 'video-direct', src: 'K2H0102/video/abcsong_v3.mp4?v=999', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
             8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
@@ -555,8 +556,8 @@
                 const elements = courseConfig[currentPage].elements;
                 const videoEl = elements.find(el => el.type === 'video-btn' || el.type === 'video-direct');
                 if (videoEl && videoEl.src) {
+                    // 只預載，暫不 load()，等到 openCustomVideoModal 才強制 load
                     dom.courseVideo.src = videoEl.src;
-                    dom.courseVideo.load();
                 }
             }
         }
@@ -741,7 +742,7 @@
                 elements.forEach(el => {
                     if (el.type === 'audio') {
                         const btn = document.createElement('button');
-                        btn.className = 'absolute pointer-events-auto bg-sky-100 hover:bg-white text-sky-700 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(186,230,253,0.9)] transition-transform hover:scale-110 active:scale-95 z-10 w-12 h-12 md:w-16 md:h-16 border-4 border-white/90 backdrop-blur-sm';
+                        btn.className = 'absolute pointer-events-auto bg-sky-100 hover:bg-white text-sky-700 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(186,230,253,0.9)] transition-transform hover:scale-110 active:scale-95 z-10 w-12 h-12 md:w-16 h-16 md:h-16 border-4 border-white/90 backdrop-blur-sm';
                         btn.style = el.style;
                         btn.innerHTML = `<i class="ph-fill ${el.icon} text-3xl md:text-4xl text-sky-500"></i>`;
                         btn.title = '播放发音';
@@ -763,7 +764,7 @@
                     }
                     else if (el.type === 'video-btn') {
                         const btn = document.createElement('img');
-                        btn.className = 'absolute pointer-events-auto cursor-pointer w-12 h-12 md:w-16 md:h-16 hover:scale-110 transition-transform z-10 shadow-lg rounded-full bg-white/50 backdrop-blur-sm p-1';
+                        btn.className = 'absolute pointer-events-auto cursor-pointer w-12 h-12 md:w-16 h-16 hover:scale-110 transition-transform z-10 shadow-lg rounded-full bg-white/50 backdrop-blur-sm p-1';
                         btn.src = 'K2H0102/img/播放键.png';
                         btn.style = `${el.style} transform: translate(-50%, -50%);`; 
                         btn.onerror = function() { this.src = 'https://cdn-icons-png.flaticon.com/512/148/148744.png'; }
@@ -946,6 +947,8 @@
             
             if (!dom.courseVideo.src.includes(src)) {
                 dom.courseVideo.src = src;
+                // 強制重新載入影片，解決切換來源時拖曳失效的 bug
+                dom.courseVideo.load();
             }
             
             dom.courseVideo.volume = 1.0; 
