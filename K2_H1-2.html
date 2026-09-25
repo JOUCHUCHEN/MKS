@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 加入終極防快取 Meta 標籤，強迫瀏覽器每次載入最新的 HTML -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>H1-2 - 麦卡思线上课件系统</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -290,7 +294,7 @@
             },
             7: {
                 elements: [
-                    { type: 'video-direct', src: 'K2H0102/video/abcsong_v3.mp4?v=999', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
+                    { type: 'video-direct', src: 'K2H0102/video/abcsong.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
             8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
@@ -915,7 +919,10 @@
             playNext();
         }
 
-        function openCustomVideoModal(src, size = 'full') {
+        // ==========================================
+        // 【終極解決方案】：強制記憶體載入法 (Blob URL)
+        // ==========================================
+        async function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
             void dom.videoModal.offsetWidth; 
             dom.videoModal.classList.remove('opacity-0');
@@ -929,9 +936,34 @@
             }
             
             const cleanSrc = src.split('?')[0];
-            if (!dom.courseVideo.src.includes(cleanSrc)) {
-                dom.courseVideo.src = src;
-                dom.courseVideo.load();
+
+            // 檢查是否與上次開啟的影片不同
+            if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
+                dom.courseVideo.src = ""; // 暫時清空避免播到舊檔
+                showToast('正在強制下載最新影片...'); 
+
+                try {
+                    // 1. 強制加入時間戳並設定 no-store，1000% 擊穿 GitHub CDN 快取
+                    const fetchUrl = `${cleanSrc}?t=${new Date().getTime()}`;
+                    const response = await fetch(fetchUrl, { cache: 'no-store' });
+                    
+                    if (!response.ok) throw new Error('網絡請求失敗');
+
+                    // 2. 將影片完整載入到瀏覽器記憶體中 (解決拖曳死當的問題)
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    dom.courseVideo.src = blobUrl;
+                    dom.courseVideo.dataset.originalSrc = cleanSrc; 
+                    dom.courseVideo.load();
+                    showToast('影片載入完成！');
+                } catch (error) {
+                    console.error("記憶體載入失敗，退回一般模式", error);
+                    // 備用方案：如果 fetch 失敗，退回標準 HTML5 載入，依然加上隨機參數破快取
+                    dom.courseVideo.src = `${cleanSrc}?t=${new Date().getTime()}`;
+                    dom.courseVideo.dataset.originalSrc = cleanSrc;
+                    dom.courseVideo.load();
+                }
             }
             
             dom.courseVideo.volume = 1.0; 
