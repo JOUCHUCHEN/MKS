@@ -294,7 +294,7 @@
             },
             7: {
                 elements: [
-                    { type: 'video-direct', src: 'K2H0102/video/abcsong.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
+                    { type: 'video-direct', src: 'K2H0102/video/abcsong_v7.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
             8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
@@ -920,9 +920,9 @@
         }
 
         // ==========================================
-        // 【終極解決方案】：強制記憶體載入法 (Blob URL)
+        // 【優化版】：原生串流 + 動態破除快取 (解決大影片黑畫面)
         // ==========================================
-        async function openCustomVideoModal(src, size = 'full') {
+        function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
             void dom.videoModal.offsetWidth; 
             dom.videoModal.classList.remove('opacity-0');
@@ -939,31 +939,12 @@
 
             // 檢查是否與上次開啟的影片不同
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
-                dom.courseVideo.src = ""; // 暫時清空避免播到舊檔
-                showToast('正在強制下載最新影片...'); 
-
-                try {
-                    // 1. 強制加入時間戳並設定 no-store，1000% 擊穿 GitHub CDN 快取
-                    const fetchUrl = `${cleanSrc}?t=${new Date().getTime()}`;
-                    const response = await fetch(fetchUrl, { cache: 'no-store' });
-                    
-                    if (!response.ok) throw new Error('網絡請求失敗');
-
-                    // 2. 將影片完整載入到瀏覽器記憶體中 (解決拖曳死當的問題)
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-
-                    dom.courseVideo.src = blobUrl;
-                    dom.courseVideo.dataset.originalSrc = cleanSrc; 
-                    dom.courseVideo.load();
-                    showToast('影片載入完成！');
-                } catch (error) {
-                    console.error("記憶體載入失敗，退回一般模式", error);
-                    // 備用方案：如果 fetch 失敗，退回標準 HTML5 載入，依然加上隨機參數破快取
-                    dom.courseVideo.src = `${cleanSrc}?t=${new Date().getTime()}`;
-                    dom.courseVideo.dataset.originalSrc = cleanSrc;
-                    dom.courseVideo.load();
-                }
+                // 不再使用龐大的 fetch 下載到記憶體
+                // 而是直接在網址後方加上隨機時間戳，交給原生 HTML5 播放器
+                // 這樣既能 100% 擊穿 GitHub 快取，大影片也能「秒點秒播」！
+                dom.courseVideo.src = `${cleanSrc}?t=${new Date().getTime()}`;
+                dom.courseVideo.dataset.originalSrc = cleanSrc; 
+                dom.courseVideo.load();
             }
             
             dom.courseVideo.volume = 1.0; 
