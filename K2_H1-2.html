@@ -286,10 +286,11 @@
             },
             4: {
                 elements: [
+                    // 👇 已經替換為您的 Cloudflare R2 連結
                     { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/sam(0926).mp4', style: 'top: 71%; left: 27%;' },
-                    { type: 'video-btn', src: 'K2H0102/video/friend.mp4', style: 'top: 64%; left: 48%;' },
-                    { type: 'video-btn', src: 'K2H0102/video/teacher.mp4', style: 'top: 26%; left: 55%;' },
-                    { type: 'video-btn', src: 'K2H0102/video/bird.mp4', style: 'top: 40%; left: 75%;' }
+                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/friend(0926).mp4', style: 'top: 64%; left: 48%;' },
+                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/teacher(0926).mp4', style: 'top: 26%; left: 55%;' },
+                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/bird(0926).mp4', style: 'top: 40%; left: 75%;' }
                 ]
             },
             7: {
@@ -297,11 +298,11 @@
                     { type: 'video-direct', src: 'K2H0102/video/abcphonicssong(3).mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
-            8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
-            11: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
-            14: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
-            17: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
-            20: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
+            8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
+            11: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
+            14: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
+            17: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
+            20: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
             9: {
                 elements: [
                     { type: 'audio', src: 'K2H0102/sound/letter/thisiss.mp3', style: 'top: 40%; left: 10%;', icon: 'ph-play-circle' },
@@ -920,9 +921,9 @@
         }
 
         // ==========================================
-        // 【終極解決方案】：強制記憶體載入法 (Blob URL)
+        // 【極速版】：移除隨機時間戳，讓瀏覽器與 CDN 全速快取！
         // ==========================================
-        async function openCustomVideoModal(src, size = 'full') {
+        function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
             void dom.videoModal.offsetWidth; 
             dom.videoModal.classList.remove('opacity-0');
@@ -939,30 +940,10 @@
 
             // 檢查是否與上次開啟的影片不同
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
-                dom.courseVideo.src = ""; // 暫時清空避免播到舊檔
-                
-                try {
-                    // 1. 強制加入時間戳並設定 no-store，1000% 擊穿 GitHub CDN 快取
-                    const fetchUrl = `${cleanSrc}?t=${new Date().getTime()}`;
-                    const response = await fetch(fetchUrl, { cache: 'no-store' });
-                    
-                    if (!response.ok) throw new Error('网络请求失败');
-
-                    // 2. 將影片完整載入到瀏覽器記憶體中 (解決拖曳死當的問題)
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-
-                    dom.courseVideo.src = blobUrl;
-                    dom.courseVideo.dataset.originalSrc = cleanSrc; 
-                    dom.courseVideo.load();
-                    
-                } catch (error) {
-                    console.error("内存加载失败，退回一般模式", error);
-                    // 備用方案：如果 fetch 失敗，退回標準 HTML5 載入，依然加上隨機參數破快取
-                    dom.courseVideo.src = `${cleanSrc}?t=${new Date().getTime()}`;
-                    dom.courseVideo.dataset.originalSrc = cleanSrc;
-                    dom.courseVideo.load();
-                }
+                // 移除時間戳！直接使用乾淨的網址，讓瀏覽器可以記憶快取
+                dom.courseVideo.src = cleanSrc; 
+                dom.courseVideo.dataset.originalSrc = cleanSrc; 
+                dom.courseVideo.load();
             }
             
             dom.courseVideo.volume = 1.0; 
