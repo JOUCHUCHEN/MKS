@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- ⚠️ 已經為您刪除了妨礙速度的防快取 Meta 標籤 -->
     <title>H1-2 - 麦卡思线上课件系统</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -262,6 +261,9 @@
         let currentLineWidth = 6; 
         
         const drawingState = {}; 
+        
+        // 🔹 影片記憶體快取儲存區
+        const videoCache = {}; 
 
         const pageConfigs = {
             2: { 
@@ -283,7 +285,6 @@
             },
             4: {
                 elements: [
-                    // 👇 請將這裡的單引號內容，替換為您剛在騰訊雲複製的 4 條對象地址
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam%280926%29.mp4', style: 'top: 71%; left: 27%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend%280926%29.mp4', style: 'top: 64%; left: 48%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher%280926%29.mp4', style: 'top: 26%; left: 55%;' },
@@ -292,7 +293,6 @@
             },
             7: {
                 elements: [
-                    // 您之前替換的 abc phonic song 也請一併用騰訊雲的網址替換
                     { type: 'video-direct', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/abcphonicssong%283%29.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
@@ -450,7 +450,38 @@
             setTimeout(() => {
                 resizeCanvas();
                 loadPageData();
+                // 🔹 網頁載入時，自動觸發背景影片快取程序
+                preloadAllVideos();
             }, 50);
+        }
+
+        // 🔹 自動提取設定檔中的影片，並在背景下載到記憶體
+        function preloadAllVideos() {
+            const urlsToPreload = new Set();
+            for (const page in pageConfigs) {
+                const elements = pageConfigs[page].elements;
+                if (elements) {
+                    elements.forEach(el => {
+                        if (el.type === 'video-btn' || el.type === 'video-direct') {
+                            urlsToPreload.add(el.src);
+                        }
+                    });
+                }
+            }
+
+            for (const url of urlsToPreload) {
+                fetch(url)
+                    .then(response => {
+                        if (response.ok) return response.blob();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(blob => {
+                        // 下載完成後，將其轉換為瀏覽器本地記憶體網址
+                        videoCache[url] = URL.createObjectURL(blob);
+                        console.log("影片已成功加載至記憶體:", url);
+                    })
+                    .catch(e => console.log("影片背景加載失敗，將回退到即時串流:", url, e));
+            }
         }
 
         function toggleFullscreen() {
@@ -919,7 +950,7 @@
         }
 
         // ==========================================
-        // 乾淨且極速的影片加載模塊
+        // 🔹 支援記憶體快取的極速影片加載模塊
         // ==========================================
         function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
@@ -935,9 +966,12 @@
             }
             
             const cleanSrc = src.split('?')[0];
+            
+            // 檢查影片是否已經在背景下載完畢，若是，則直接提取記憶體裡的網址 (Blob URL)
+            const finalSrc = videoCache[cleanSrc] || cleanSrc;
 
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
-                dom.courseVideo.src = cleanSrc; 
+                dom.courseVideo.src = finalSrc; 
                 dom.courseVideo.dataset.originalSrc = cleanSrc; 
                 dom.courseVideo.load();
             }
