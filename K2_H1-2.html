@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- ⚠️ 已經為您刪除了妨礙速度的防快取 Meta 標籤 -->
     <title>H1-2 - 麦卡思线上课件系统</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -282,15 +283,16 @@
             },
             4: {
                 elements: [
-                    // 👇 已經替換為您的 Cloudflare R2 連結
-                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/sam(0926).mp4', style: 'top: 71%; left: 27%;' },
-                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/friend(0926).mp4', style: 'top: 64%; left: 48%;' },
-                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/teacher(0926).mp4', style: 'top: 26%; left: 55%;' },
-                    { type: 'video-btn', src: 'https://pub-adbe719cecfb433b9da0ed33baa0ffa9.r2.dev/bird(0926).mp4', style: 'top: 40%; left: 75%;' }
+                    // 👇 請將這裡的單引號內容，替換為您剛在騰訊雲複製的 4 條對象地址
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam%280926%29.mp4', style: 'top: 71%; left: 27%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend%280926%29.mp4', style: 'top: 64%; left: 48%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher%280926%29.mp4', style: 'top: 26%; left: 55%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/bird%280926%29.mp4', style: 'top: 40%; left: 75%;' }
                 ]
             },
             7: {
                 elements: [
+                    // 您之前替換的 abc phonic song 也請一併用騰訊雲的網址替換
                     { type: 'video-direct', src: 'K2H0102/video/abcphonicssong(3).mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
@@ -917,7 +919,7 @@
         }
 
         // ==========================================
-        // 【極速版】：移除隨機時間戳，讓瀏覽器與 CDN 全速快取！
+        // 乾淨且極速的影片加載模塊
         // ==========================================
         function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
@@ -934,9 +936,7 @@
             
             const cleanSrc = src.split('?')[0];
 
-            // 檢查是否與上次開啟的影片不同
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
-                // 移除時間戳！直接使用乾淨的網址，讓瀏覽器可以記憶快取
                 dom.courseVideo.src = cleanSrc; 
                 dom.courseVideo.dataset.originalSrc = cleanSrc; 
                 dom.courseVideo.load();
