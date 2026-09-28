@@ -771,14 +771,83 @@
                     else if (el.type === 'word') {
                         const word = document.createElement('div');
                         word.className = 'absolute pointer-events-auto cursor-pointer text-slate-800 hover:text-sky-600 transition-colors z-10 drop-shadow-md font-bold';
-                        word.style = `${el.style} font-family: 'Comic Sans MS', cursive, sans-serif;`;
+                        word.style = `${el.style} font-family: 'Comic Sans MS', cursive, sans-serif; touch-action: none;`;
                         word.textContent = el.text;
-                        word.onclick = () => {
-                            word.classList.remove('animate-shake');
-                            void word.offsetWidth; 
-                            word.classList.add('animate-shake');
-                            playRealAudio(el.src, null);
+                        
+                        let isDragging = false;
+                        let hasMoved = false;
+                        let startX, startY, startLeft, startTop;
+
+                        const startDrag = (e) => {
+                            if (e.type === 'mousedown' && e.button !== 0) return; // 只允許滑鼠左鍵
+                            isDragging = true;
+                            hasMoved = false;
+                            
+                            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                            
+                            startX = clientX;
+                            startY = clientY;
+                            
+                            const layerRect = dom.interactiveLayer.getBoundingClientRect();
+                            const wordRect = word.getBoundingClientRect();
+                            
+                            startLeft = wordRect.left - layerRect.left;
+                            startTop = wordRect.top - layerRect.top;
+                            
+                            word.style.zIndex = "50"; // 拖曳時置頂
+                            word.style.transition = "none"; // 拖曳時取消 CSS 漸變以保持流暢
+                            
+                            document.addEventListener('mousemove', moveDrag);
+                            document.addEventListener('mouseup', endDrag);
+                            document.addEventListener('touchmove', moveDrag, { passive: false });
+                            document.addEventListener('touchend', endDrag);
                         };
+
+                        const moveDrag = (e) => {
+                            if (!isDragging) return;
+                            e.preventDefault();
+                            
+                            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                            
+                            const dx = clientX - startX;
+                            const dy = clientY - startY;
+                            
+                            // 移動超過 3 像素才判定為拖曳，否則視為點擊
+                            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+                            
+                            const layerRect = dom.interactiveLayer.getBoundingClientRect();
+                            const newLeftPercent = ((startLeft + dx) / layerRect.width) * 100;
+                            const newTopPercent = ((startTop + dy) / layerRect.height) * 100;
+                            
+                            word.style.left = `${newLeftPercent}%`;
+                            word.style.top = `${newTopPercent}%`;
+                        };
+
+                        const endDrag = (e) => {
+                            if (!isDragging) return;
+                            isDragging = false;
+                            word.style.zIndex = "10";
+                            word.style.transition = ""; // 恢復 CSS 漸變
+                            
+                            document.removeEventListener('mousemove', moveDrag);
+                            document.removeEventListener('mouseup', endDrag);
+                            document.removeEventListener('touchmove', moveDrag);
+                            document.removeEventListener('touchend', endDrag);
+                            
+                            // 如果沒有發生拖曳，則執行點讀
+                            if (!hasMoved) {
+                                word.classList.remove('animate-shake');
+                                void word.offsetWidth; 
+                                word.classList.add('animate-shake');
+                                playRealAudio(el.src, null);
+                            }
+                        };
+
+                        word.addEventListener('mousedown', startDrag);
+                        word.addEventListener('touchstart', startDrag, { passive: false });
+
                         layer.appendChild(word);
                     }
                     else if (el.type === 'video-btn') {
