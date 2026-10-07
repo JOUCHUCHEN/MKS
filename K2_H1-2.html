@@ -24,16 +24,21 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
         
+        /* 核心：確保 16:9 課件容器在任何螢幕/全螢幕下均自動適應且不超出畫面 */
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
-            height: 100%;
+            width: 100%;
+            height: auto;
             max-width: 100%;
             max-height: 100%;
+            object-fit: contain;
         }
 
+        /* 核心：強制所有圖片保持原始比例，絕對不拉伸變形 */
         #slide-img, img {
             image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
+            object-fit: contain !important;
         }
 
         #drawing-canvas {
@@ -124,7 +129,7 @@
         </header>
 
         <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
-            <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
+            <div id="slide-wrapper" class="w-full h-full slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
                 
                 <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none">
                 <img id="slide-img" alt="幻灯片" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none hidden">
@@ -790,7 +795,7 @@
                     else if (el.type === 'image') {
                         const img = document.createElement('img');
                         img.className = el.className || 'absolute pointer-events-none object-contain z-0 select-none border-4 border-white shadow-md rounded-sm';
-                        img.style = el.style;
+                        img.style = `${el.style || ''}; object-fit: contain;`;
                         img.src = el.src;
                         layer.appendChild(img);
                     }
@@ -909,7 +914,7 @@
                     else if (el.type === 'letter') {
                         const img = document.createElement('img');
                         img.className = 'absolute pointer-events-auto cursor-pointer max-w-[70%] max-h-[70%] object-contain hover:scale-105 transition-transform z-10 drop-shadow-xl';
-                        img.style = el.style;
+                        img.style = `${el.style || ''}; object-fit: contain;`;
                         img.src = el.imgSrc;
                         img.onclick = () => {
                             const isCentered = el.style.includes('translate(-50%, -50%)');
