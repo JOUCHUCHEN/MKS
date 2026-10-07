@@ -24,17 +24,15 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
         
-        /* 核心修復：精準限制 16:9 比例，同時受到 max-width 與 max-height 的約束，絕不溢出畫面 */
+        /* 核心修復：利用 Container Query (cqw/cqh) 精準計算最大 16:9 比例，絕不縮小成 0px，也絕不出框 */
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
-            width: auto;
+            width: min(100cqw, calc(100cqh * 16 / 9));
             height: auto;
-            max-width: 100%;
-            max-height: 100%;
             object-fit: contain;
         }
 
-        /* 核心：強制所有圖片保持原始比例，絕對不拉伸變形 */
+        /* 強制所有圖片保持原始比例，絕對不拉伸變形 */
         #slide-img, img {
             image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
@@ -128,7 +126,7 @@
             </div>
         </header>
 
-        <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
+        <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative min-h-0 min-w-0" style="container-type: size;">
             <div id="slide-wrapper" class="slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
                 
                 <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none">
