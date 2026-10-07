@@ -26,18 +26,9 @@
         
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
-            width: 100%;
             height: 100%;
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
-        }
-
-        /* 圖片高清晰度防模糊抗鋸齒設定 */
-        #slide-img, img {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: high-quality;
-            object-fit: contain !important;
         }
 
         #drawing-canvas {
@@ -128,10 +119,10 @@
         </header>
 
         <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
-            <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-slate-950 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
+            <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center border-4 border-slate-700">
                 
-                <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none">
-                <img id="slide-img" alt="幻灯片" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none hidden">
+                <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none">
+                <img id="slide-img" alt="幻灯片" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none hidden">
                 
                 <div id="fallback-content" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-0 hidden bg-slate-50">
                     <i class="ph-duotone ph-image-broken text-6xl mb-4 text-slate-300"></i>
@@ -197,13 +188,13 @@
         </footer>
 
         <div id="video-modal" class="absolute inset-0 bg-black/50 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
-            <div class="bg-black rounded-2xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden transform scale-95 transition-transform duration-300 relative group" id="video-modal-content">
+            <div class="bg-black border-4 border-slate-700 rounded-2xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden transform scale-95 transition-transform duration-300 relative group" id="video-modal-content">
                 <button onclick="closeVideoModal()" class="absolute top-4 right-4 z-50 text-white bg-black/50 hover:bg-red-500 p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-sm border border-white/20 shadow-lg">
                     <i class="ph-bold ph-x text-2xl"></i>
                 </button>
                 
                 <div class="aspect-video bg-black relative">
-                    <video id="course-video" class="w-full h-full object-contain" controls preload="auto" playsinline webkit-playsinline x5-playsinline x5-video-player-type="h5">
+                    <video id="course-video" class="w-full h-full" controls preload="auto" playsinline>
                         <source src="" type="video/mp4">
                         您的浏览器不支持 HTML5 视频。
                     </video>
@@ -305,11 +296,11 @@
                     { type: 'video-direct', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/abcphonicssong_opt.mp4', style: 'top: 46.5%; left: 49.5%; width: 68%; height: 72%; transform: translate(-50%, -50%);' }
                 ]
             },
-            8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
-            11: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
-            14: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
-            17: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
-            20: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H22-23/game' } ] },
+            8: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
+            11: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
+            14: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
+            17: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
+            20: { elements: [ { type: 'link', url: 'https://mksenglish.pages.dev/K2/H1-2/game' } ] },
             9: {
                 elements: [
                     { type: 'audio', src: 'K2H0102/sound/letter/thisiss.mp3', style: 'top: 40%; left: 10%;', icon: 'ph-play-circle' },
@@ -788,7 +779,7 @@
                         let startX, startY, startLeft, startTop;
 
                         const startDrag = (e) => {
-                            if (e.type === 'mousedown' && e.button !== 0) return;
+                            if (e.type === 'mousedown' && e.button !== 0) return; // 只允許滑鼠左鍵
                             isDragging = true;
                             hasMoved = false;
                             
@@ -804,8 +795,8 @@
                             startLeft = wordRect.left - layerRect.left;
                             startTop = wordRect.top - layerRect.top;
                             
-                            word.style.zIndex = "50";
-                            word.style.transition = "none";
+                            word.style.zIndex = "50"; // 拖曳時置頂
+                            word.style.transition = "none"; // 拖曳時取消 CSS 漸變以保持流暢
                             
                             document.addEventListener('mousemove', moveDrag);
                             document.addEventListener('mouseup', endDrag);
@@ -823,6 +814,7 @@
                             const dx = clientX - startX;
                             const dy = clientY - startY;
                             
+                            // 移動超過 3 像素才判定為拖曳，否則視為點擊
                             if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
                             
                             const layerRect = dom.interactiveLayer.getBoundingClientRect();
@@ -837,13 +829,14 @@
                             if (!isDragging) return;
                             isDragging = false;
                             word.style.zIndex = "10";
-                            word.style.transition = "";
+                            word.style.transition = ""; // 恢復 CSS 漸變
                             
                             document.removeEventListener('mousemove', moveDrag);
                             document.removeEventListener('mouseup', endDrag);
                             document.removeEventListener('touchmove', moveDrag);
                             document.removeEventListener('touchend', endDrag);
                             
+                            // 如果沒有發生拖曳，則執行點讀
                             if (!hasMoved) {
                                 word.classList.remove('animate-shake');
                                 void word.offsetWidth; 
