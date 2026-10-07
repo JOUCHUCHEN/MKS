@@ -31,6 +31,11 @@
             max-height: 100%;
         }
 
+        #slide-img, img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: high-quality;
+        }
+
         #drawing-canvas {
             touch-action: none; 
             pointer-events: none; 
@@ -119,10 +124,10 @@
         </header>
 
         <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
-            <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center border-4 border-slate-700">
+            <div id="slide-wrapper" class="max-w-6xl slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
                 
-                <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none">
-                <img id="slide-img" alt="幻灯片" class="w-full h-full object-fill absolute inset-0 z-0 select-none pointer-events-none hidden">
+                <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none">
+                <img id="slide-img" alt="幻灯片" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none hidden">
                 
                 <div id="fallback-content" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-0 hidden bg-slate-50">
                     <i class="ph-duotone ph-image-broken text-6xl mb-4 text-slate-300"></i>
@@ -188,13 +193,13 @@
         </footer>
 
         <div id="video-modal" class="absolute inset-0 bg-black/50 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
-            <div class="bg-black border-4 border-slate-700 rounded-2xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden transform scale-95 transition-transform duration-300 relative group" id="video-modal-content">
+            <div class="bg-black rounded-2xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden transform scale-95 transition-transform duration-300 relative group" id="video-modal-content">
                 <button onclick="closeVideoModal()" class="absolute top-4 right-4 z-50 text-white bg-black/50 hover:bg-red-500 p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100 backdrop-blur-sm border border-white/20 shadow-lg">
                     <i class="ph-bold ph-x text-2xl"></i>
                 </button>
                 
                 <div class="aspect-video bg-black relative">
-                    <video id="course-video" class="w-full h-full" controls preload="auto" playsinline>
+                    <video id="course-video" class="w-full h-full object-contain" controls preload="auto" playsinline webkit-playsinline x5-playsinline x5-video-player-type="h5">
                         <source src="" type="video/mp4">
                         您的浏览器不支持 HTML5 视频。
                     </video>
@@ -273,6 +278,7 @@
             },
             3: {
                 elements: [
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%;' },
                     { type: 'word', text: 'mom', src: 'K2H0102/sound/1-mom.mp3', style: 'top: 15%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'dad', src: 'K2H0102/sound/2-dad.mp3', style: 'top: 25%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'Sam', src: 'K2H0102/sound/3-sam.mp3', style: 'top: 35%; left: 4%; font-size: 28px;' },
@@ -285,10 +291,16 @@
             },
             4: {
                 elements: [
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam_720p.mp4', style: 'top: 71%; left: 27%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend_720p.mp4', style: 'top: 64%; left: 48%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher_720p.mp4', style: 'top: 26%; left: 55%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/bird_720p.mp4', style: 'top: 40%; left: 75%;' }
+                ]
+            },
+            5: {
+                elements: [
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' }
                 ]
             },
             7: {
@@ -450,12 +462,10 @@
             setTimeout(() => {
                 resizeCanvas();
                 loadPageData();
-                // 🔹 網頁載入時，自動觸發背景影片快取程序
                 preloadAllVideos();
             }, 50);
         }
 
-        // 🔹 自動提取設定檔中的影片，並在背景下載到記憶體
         function preloadAllVideos() {
             const urlsToPreload = new Set();
             for (const page in pageConfigs) {
@@ -476,7 +486,6 @@
                         throw new Error('Network response was not ok.');
                     })
                     .then(blob => {
-                        // 下載完成後，將其轉換為瀏覽器本地記憶體網址
                         videoCache[url] = URL.createObjectURL(blob);
                         console.log("影片已成功加載至記憶體:", url);
                     })
@@ -759,7 +768,14 @@
             if (courseConfig && courseConfig[currentPage]) {
                 const elements = courseConfig[currentPage].elements;
                 elements.forEach(el => {
-                    if (el.type === 'audio') {
+                    if (el.type === 'image') {
+                        const img = document.createElement('img');
+                        img.className = 'absolute pointer-events-none object-contain z-0 select-none';
+                        img.style = el.style;
+                        img.src = el.src;
+                        layer.appendChild(img);
+                    }
+                    else if (el.type === 'audio') {
                         const btn = document.createElement('button');
                         btn.className = 'absolute pointer-events-auto bg-sky-100 hover:bg-white text-sky-700 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(186,230,253,0.9)] transition-transform hover:scale-110 active:scale-95 z-10 w-12 h-12 md:w-16 md:h-16 border-4 border-white/90 backdrop-blur-sm';
                         btn.style = el.style;
@@ -779,7 +795,7 @@
                         let startX, startY, startLeft, startTop;
 
                         const startDrag = (e) => {
-                            if (e.type === 'mousedown' && e.button !== 0) return; // 只允許滑鼠左鍵
+                            if (e.type === 'mousedown' && e.button !== 0) return;
                             isDragging = true;
                             hasMoved = false;
                             
@@ -795,8 +811,8 @@
                             startLeft = wordRect.left - layerRect.left;
                             startTop = wordRect.top - layerRect.top;
                             
-                            word.style.zIndex = "50"; // 拖曳時置頂
-                            word.style.transition = "none"; // 拖曳時取消 CSS 漸變以保持流暢
+                            word.style.zIndex = "50";
+                            word.style.transition = "none";
                             
                             document.addEventListener('mousemove', moveDrag);
                             document.addEventListener('mouseup', endDrag);
@@ -814,7 +830,6 @@
                             const dx = clientX - startX;
                             const dy = clientY - startY;
                             
-                            // 移動超過 3 像素才判定為拖曳，否則視為點擊
                             if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
                             
                             const layerRect = dom.interactiveLayer.getBoundingClientRect();
@@ -829,14 +844,13 @@
                             if (!isDragging) return;
                             isDragging = false;
                             word.style.zIndex = "10";
-                            word.style.transition = ""; // 恢復 CSS 漸變
+                            word.style.transition = "";
                             
                             document.removeEventListener('mousemove', moveDrag);
                             document.removeEventListener('mouseup', endDrag);
                             document.removeEventListener('touchmove', moveDrag);
                             document.removeEventListener('touchend', endDrag);
                             
-                            // 如果沒有發生拖曳，則執行點讀
                             if (!hasMoved) {
                                 word.classList.remove('animate-shake');
                                 void word.offsetWidth; 
@@ -1018,9 +1032,6 @@
             playNext();
         }
 
-        // ==========================================
-        // 🔹 支援記憶體快取的極速影片加載模塊
-        // ==========================================
         function openCustomVideoModal(src, size = 'full') {
             dom.videoModal.classList.remove('hidden');
             void dom.videoModal.offsetWidth; 
@@ -1035,8 +1046,6 @@
             }
             
             const cleanSrc = src.split('?')[0];
-            
-            // 檢查影片是否已經在背景下載完畢，若是，則直接提取記憶體裡的網址 (Blob URL)
             const finalSrc = videoCache[cleanSrc] || cleanSrc;
 
             if (dom.courseVideo.dataset.originalSrc !== cleanSrc) {
@@ -1075,7 +1084,6 @@
         }
 
         window.onload = initApp;
-
     </script>
 </body>
 </html>
