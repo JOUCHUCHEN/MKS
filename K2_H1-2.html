@@ -278,7 +278,7 @@
             },
             3: {
                 elements: [
-                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' },
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%;' },
                     { type: 'word', text: 'mom', src: 'K2H0102/sound/1-mom.mp3', style: 'top: 15%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'dad', src: 'K2H0102/sound/2-dad.mp3', style: 'top: 25%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'Sam', src: 'K2H0102/sound/3-sam.mp3', style: 'top: 35%; left: 4%; font-size: 28px;' },
@@ -291,7 +291,7 @@
             },
             4: {
                 elements: [
-                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%;' },
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam_720p.mp4', style: 'top: 71%; left: 27%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend_720p.mp4', style: 'top: 64%; left: 48%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher_720p.mp4', style: 'top: 26%; left: 55%;' },
@@ -300,7 +300,7 @@
             },
             5: {
                 elements: [
-                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%;' }
+                    { type: 'image', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' }
                 ]
             },
             7: {
@@ -770,7 +770,8 @@
                 elements.forEach(el => {
                     if (el.type === 'image') {
                         const img = document.createElement('img');
-                        img.className = 'absolute pointer-events-none object-contain z-0 select-none';
+                        // 🔹 加入白色邊框與陰影 (border-4 border-white shadow-md rounded-sm)
+                        img.className = 'absolute pointer-events-none object-contain z-0 select-none border-4 border-white shadow-md rounded-sm';
                         img.style = el.style;
                         img.src = el.src;
                         layer.appendChild(img);
