@@ -24,10 +24,10 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
         
-        /* 核心：確保 16:9 課件容器在任何螢幕/全螢幕下均自動適應且統一尺寸 */
+        /* 核心修復：精準限制 16:9 比例，同時受到 max-width 與 max-height 的約束，絕不溢出畫面 */
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
-            width: 100%;
+            width: auto;
             height: auto;
             max-width: 100%;
             max-height: 100%;
@@ -129,7 +129,7 @@
         </header>
 
         <main class="flex-grow flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
-            <div id="slide-wrapper" class="w-full h-full slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
+            <div id="slide-wrapper" class="slide-aspect-ratio bg-transparent rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden flex items-center justify-center">
                 
                 <img src="K2H0102/img/bg.png" alt="常駐背景" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none">
                 <img id="slide-img" alt="幻灯片" class="w-full h-full object-contain absolute inset-0 z-0 select-none pointer-events-none hidden">
@@ -281,7 +281,7 @@
             },
             3: {
                 elements: [
-                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%;' },
+                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 95%; max-height: 95%;' },
                     { type: 'word', text: 'mom', src: 'K2H0102/sound/1-mom.mp3', style: 'top: 15%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'dad', src: 'K2H0102/sound/2-dad.mp3', style: 'top: 25%; left: 4%; font-size: 28px;' },
                     { type: 'word', text: 'Sam', src: 'K2H0102/sound/3-sam.mp3', style: 'top: 35%; left: 4%; font-size: 28px;' },
@@ -294,7 +294,7 @@
             },
             4: {
                 elements: [
-                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%;' },
+                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 95%; max-height: 95%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam_720p.mp4', style: 'top: 75%; left: 27%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend_720p.mp4', style: 'top: 70%; left: 48%;' },
                     { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher_720p.mp4', style: 'top: 32%; left: 55%;' },
@@ -303,7 +303,7 @@
             },
             5: {
                 elements: [
-                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%;' }
+                    { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 95%; max-height: 95%;' }
                 ]
             },
             7: {
