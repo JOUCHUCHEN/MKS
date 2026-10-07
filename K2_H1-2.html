@@ -24,7 +24,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
         
-        /* 核心：確保 16:9 課件容器在任何螢幕/全螢幕下均自動適應且不超出畫面 */
+        /* 核心：確保 16:9 課件容器在任何螢幕/全螢幕下均自動適應且統一尺寸 */
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
             width: 100%;
@@ -271,8 +271,6 @@
         let currentLineWidth = 6; 
         
         const drawingState = {}; 
-        
-        // 🔹 影片記憶體快取儲存區
         const videoCache = {}; 
 
         const pageConfigs = {
@@ -459,6 +457,9 @@
             window.addEventListener('touchend', stopDrawing);
 
             window.addEventListener('resize', resizeCanvas);
+            document.addEventListener('fullscreenchange', resizeCanvas);
+            document.addEventListener('webkitfullscreenchange', resizeCanvas);
+            document.addEventListener('msfullscreenchange', resizeCanvas);
             
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft') prevPage();
@@ -795,7 +796,7 @@
                     else if (el.type === 'image') {
                         const img = document.createElement('img');
                         img.className = el.className || 'absolute pointer-events-none object-contain z-0 select-none border-4 border-white shadow-md rounded-sm';
-                        img.style = `${el.style || ''}; object-fit: contain;`;
+                        img.style = `${el.style || ''}; object-fit: contain !important;`;
                         img.src = el.src;
                         layer.appendChild(img);
                     }
@@ -914,7 +915,7 @@
                     else if (el.type === 'letter') {
                         const img = document.createElement('img');
                         img.className = 'absolute pointer-events-auto cursor-pointer max-w-[70%] max-h-[70%] object-contain hover:scale-105 transition-transform z-10 drop-shadow-xl';
-                        img.style = `${el.style || ''}; object-fit: contain;`;
+                        img.style = `${el.style || ''}; object-fit: contain !important;`;
                         img.src = el.imgSrc;
                         img.onclick = () => {
                             const isCentered = el.style.includes('translate(-50%, -50%)');
