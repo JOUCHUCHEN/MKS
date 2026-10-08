@@ -24,7 +24,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 8px; border: 2px solid #f0f9ff; }
         
-        /* 核心修復：利用 Container Query (cqw/cqh) 精準計算最大 16:9 比例，絕不縮小成 0px，也絕不出框 */
+        /* 利用 Container Query (cqw/cqh) 精準計算最大 16:9 比例 */
         .slide-aspect-ratio {
             aspect-ratio: 16 / 9;
             width: min(100cqw, calc(100cqh * 16 / 9));
@@ -32,7 +32,7 @@
             object-fit: contain;
         }
 
-        /* 強制所有圖片保持原始比例，絕對不拉伸變形 */
+        /* 強制所有圖片保持原始比例 */
         #slide-img, img {
             image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
@@ -274,7 +274,7 @@
         const pageConfigs = {
             2: { 
                 elements: [
-                    { type: 'text', text: 'Music Time!', style: 'top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
+                    { type: 'text', text: 'Music Time!', style: 'top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 84px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
                     { type: 'audio', src: 'K2H0102/sound/LS.mp3', style: 'top: 60%; left: 50%; transform: translate(-50%, -50%);', icon: 'ph-play-circle' }
                 ]
             },
@@ -294,10 +294,10 @@
             4: {
                 elements: [
                     { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90%; max-height: 90%;' },
-                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam_720p.mp4', style: 'top: 74%; left: 27%;' },
-                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend_720p.mp4', style: 'top: 67%; left: 48%;' },
-                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher_720p.mp4', style: 'top: 30%; left: 55%;' },
-                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/bird_720p.mp4', style: 'top: 42%; left: 75%;' }
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/sam_720p_22.mp4', style: 'top: 74%; left: 27%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/friend_720p_22.mp4', style: 'top: 67%; left: 48%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/teacher_720p_22.mp4', style: 'top: 29%; left: 55%;' },
+                    { type: 'video-btn', src: 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/bird_720p_22.mp4', style: 'top: 42%; left: 75%;' }
                 ]
             },
             5: {
@@ -307,7 +307,7 @@
             },
             6: {
                 elements: [
-                    { type: 'text', text: 'Break Time!', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
+                    { type: 'text', text: 'Break Time!', style: 'top: 48%; left: 50%; transform: translate(-50%, -50%); font-size: 84px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
                 ]
             },
             7: {
@@ -387,35 +387,35 @@
             },
             23: {
                 elements: [
-                    { type: 'text', text: 'Game Time!', style: 'top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
-                    { type: 'text', text: 'Vote with Your Feet.', style: 'top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
+                    { type: 'text', text: 'Game Time!', style: 'top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 84px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
+                    { type: 'text', text: 'Vote with Your Feet.', style: 'top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
                 ]
             },
             24: {
                 elements: [
                     { type: 'text', text: 'Blending Time!', style: 'top: 2%; left: 2%; font-size: 32px; color: #222222; font-family: "Comic Sans MS", cursive, sans-serif;' },
                     { type: 'image', src: 'K2H0102/img/mat.png', style: 'top: 48%; left: 26%; transform: translate(-50%, -50%); max-width: 40%; max-height: 55%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
-                    { type: 'image', src: 'K2H0102/img/mat(v).png', style: 'top: 36%; left: 67%; transform: translate(-50%, -50%); max-width: 40%; max-height: 40%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
-                    { type: 'audio', src: 'K2H0102/sound/cvc/mat-1.mp3', style: 'top: 20%; left: 82%;', icon: 'ph-play-circle' },
-                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-m.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/mat-1.mp3'], style: 'top: 51%; left: 70%; transform: translate(-50%, 0);', slideDist: '25.5vw' }
+                    { type: 'image', src: 'K2H0102/img/mat(v).png', style: 'top: 36%; left: 67%; transform: translate(-50%, -50%); max-width: 45%; max-height: 45%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
+                    { type: 'audio', src: 'K2H0102/sound/cvc/mat-1.mp3', style: 'top: 20%; left: 84%;', icon: 'ph-play-circle' },
+                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-m.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/mat-1.mp3'], style: 'top: 51%; left: 70%; transform: translate(-50%, 0);', slideDist: '25.4vw' }
                 ]
             },
             25: {
                 elements: [
                     { type: 'text', text: 'Blending Time!', style: 'top: 2%; left: 2%; font-size: 32px; color: #222222; font-family: "Comic Sans MS", cursive, sans-serif;' },
                     { type: 'image', src: 'K2H0102/img/fat.png', style: 'top: 50%; left: 25%; transform: translate(-50%, -50%); max-width: 66%; max-height: 66%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
-                    { type: 'image', src: 'K2H0102/img/fat(v).png', style: 'top: 36%; left: 64%; transform: translate(-50%, -50%); max-width: 40%; max-height: 40%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
+                    { type: 'image', src: 'K2H0102/img/fat(v).png', style: 'top: 36%; left: 64%; transform: translate(-50%, -50%); max-width: 45%; max-height: 45%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
                     { type: 'audio', src: 'K2H0102/sound/cvc/fat-1.mp3', style: 'top: 20%; left: 77%;', icon: 'ph-play-circle' },
-                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-f.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/fat-1.mp3'], style: 'top: 51%; left:71%; transform: translate(-50%, 0);', slideDist: '18vw' }
+                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-f.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/fat-1.mp3'], style: 'top: 51%; left:71%; transform: translate(-50%, 0);', slideDist: '17vw' }
                 ]
             },
             26: {
                 elements: [
                     { type: 'text', text: 'Blending Time!', style: 'top: 2%; left: 2%; font-size: 32px; color: #222222; font-family: "Comic Sans MS", cursive, sans-serif;' },
                     { type: 'image', src: 'K2H0102/img/cat.png', style: 'top: 50%; left: 26%; transform: translate(-50%, -50%); max-width: 48%; max-height: 48%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
-                    { type: 'image', src: 'K2H0102/img/cat(v).png', style: 'top: 36%; left: 64%; transform: translate(-50%, -50%); max-width: 40%; max-height: 40%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
+                    { type: 'image', src: 'K2H0102/img/cat(v).png', style: 'top: 36%; left: 64%; transform: translate(-50%, -50%); max-width: 45%; max-height: 45%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
                     { type: 'audio', src: 'K2H0102/sound/cvc/cat-1.mp3', style: 'top: 20%; left: 80%;', icon: 'ph-play-circle' },
-                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-c.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/cat-1.mp3'], style: 'top: 51%; left:71%; transform: translate(-50%, 0);', slideDist: '21.5vw' }
+                    { type: 'blending', audios: ['K2H0102/sound/cvc/phonic-c.mp3', 'K2H0102/sound/cvc/phonic-a.mp3', 'K2H0102/sound/cvc/phonic-t.mp3', 'K2H0102/sound/cvc/cat-1.mp3'], style: 'top: 51%; left:71%; transform: translate(-50%, 0);', slideDist: '21vw' }
                 ]
             },
             27: {
@@ -428,7 +428,7 @@
             },
             28: {
                 elements: [
-                    { type: 'text', text: 'Bye-bye!', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
+                    { type: 'text', text: 'Bye-bye!', style: 'top: 48%; left: 50%; transform: translate(-50%, -50%); font-size: 84px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
                 ]
             }
         };
