@@ -274,6 +274,7 @@
         const pageConfigs = {
             2: { 
                 elements: [
+                    { type: 'text', text: 'Music Time!', style: 'top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
                     { type: 'audio', src: 'K2H0102/sound/LS.mp3', style: 'top: 60%; left: 50%; transform: translate(-50%, -50%);', icon: 'ph-play-circle' }
                 ]
             },
@@ -302,6 +303,11 @@
             5: {
                 elements: [
                     { type: 'image', src: 'K2H0102/img/poster.png', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90%; max-height: 90%;' }
+                ]
+            },
+            6: {
+                elements: [
+                    { type: 'text', text: 'Break Time!', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
                 ]
             },
             7: {
@@ -379,6 +385,12 @@
                     { type: 'audio', src: 'K2H0102/sound/letter/asound.mp3', style: 'top: 55%; left: 10%;', icon: 'ph-play-circle' },
                 ]
             },
+            23: {
+                elements: [
+                    { type: 'text', text: 'Game Time!', style: 'top: 42%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' },
+                    { type: 'text', text: 'Vote with Your Feet.', style: 'top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
+                ]
+            },
             24: {
                 elements: [
                     { type: 'text', text: 'Blending Time!', style: 'top: 2%; left: 2%; font-size: 32px; color: #222222; font-family: "Comic Sans MS", cursive, sans-serif;' },
@@ -412,6 +424,11 @@
                     { type: 'image', src: 'K2H0102/img/fatcatmat.png', style: 'top: 38%; left: 50%; transform: translate(-50%, -50%); max-width: 65%; max-height: 48%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
                     { type: 'image', src: 'K2H0102/img/fatcatmat(v).png', style: 'top: 70%; left: 50%; transform: translate(-50%, -50%); max-width: 70%; max-height: 70%;', className: 'absolute pointer-events-none object-contain z-0 select-none' },
                     { type: 'audio', src: 'K2H0102/sound/cvc/Achernar US-The fat cat sat on the mat.mp3', style: 'top: 78%; left: 50%; transform: translateX(-50%);', icon: 'ph-play-circle' }
+                ]
+            },
+            28: {
+                elements: [
+                    { type: 'text', text: 'Bye-bye!', style: 'top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: #332314; font-family: "Comic Sans MS", cursive, sans-serif; text-align: center;' }
                 ]
             }
         };
@@ -786,7 +803,7 @@
                 elements.forEach(el => {
                     if (el.type === 'text') {
                         const textEl = document.createElement('div');
-                        textEl.className = 'absolute pointer-events-none z-10 font-bold select-none';
+                        textEl.className = 'absolute pointer-events-none z-10 font-bold select-none whitespace-nowrap';
                         textEl.style = el.style;
                         textEl.textContent = el.text;
                         layer.appendChild(textEl);
