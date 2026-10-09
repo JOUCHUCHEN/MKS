@@ -620,15 +620,20 @@
 
         function preloadVideoForCurrentPage() {
             const courseConfig = pageConfigs;
-            if (courseConfig && courseConfig[currentPage]) {
-                const elements = courseConfig[currentPage].elements;
-                const videoEl = elements.find(el => el.type === 'video-btn' || el.type === 'video-direct');
+                if (courseConfig && courseConfig[currentPage]) {
+            const elements = courseConfig[currentPage].elements;
+            const videoEl = elements.find(el => el.type === 'video-btn' || el.type === 'video-direct');
                 if (videoEl && videoEl.src) {
-                    dom.courseVideo.src = videoEl.src;
-                    dom.courseVideo.load();
-                }
-            }
+            const cleanSrc = videoEl.src.split('?')[0];
+            const finalSrc = videoCache[cleanSrc] || cleanSrc;
+            dom.courseVideo.src = finalSrc;
+            // 👇 新增此行：預載時一併把 originalSrc 記錄為原本的 URL，防止點擊時判定失誤
+            dom.courseVideo.dataset.originalSrc = cleanSrc; 
+            dom.courseVideo.load();
         }
+    }
+}
+
 
         function handleImageError() {
             dom.slideImg.classList.add('hidden');
