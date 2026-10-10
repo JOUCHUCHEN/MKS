@@ -925,7 +925,7 @@
                     else if (el.type === 'video-btn') {
                         const btn = document.createElement('img');
                         btn.className = 'absolute pointer-events-auto cursor-pointer w-[5.5cqw] h-[5.5cqw] min-w-[28px] min-h-[28px] hover:scale-110 transition-transform z-10 shadow-lg rounded-full bg-white/50 backdrop-blur-sm p-1';
-                        btn.src = 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/img/播放键.png';
+                        btn.src = 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K2H0102/img/playbutton.png';
                         btn.style = `${formatStyle} transform: translate(-50%, -50%);`; 
                         btn.onerror = function() { this.src = 'https://cdn-icons-png.flaticon.com/512/148/148744.png'; }
                         btn.onclick = () => openCustomVideoModal(el.src, 'small');
