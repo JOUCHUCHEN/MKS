@@ -81,18 +81,20 @@
             background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #E0F2FE 100%);
             user-select: none;
             -webkit-user-select: none;
-            overflow-x: hidden;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+            overflow: hidden;
         }
 
-        /* 互動熱區樣式 */
+        /* 互動熱區樣式 (加大電子白板觸控感應範圍) */
         .hotspot {
             position: absolute;
             cursor: pointer;
             border-radius: 12px;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            /* 預設透明，滑鼠懸停或提示時才顯現 */
             background-color: rgba(255, 255, 255, 0);
             border: 3px solid transparent;
+            touch-action: manipulation;
             z-index: 10;
         }
 
@@ -196,6 +198,7 @@
         .btn-3d {
             transition: all 0.1s ease;
             box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
+            touch-action: manipulation;
         }
         .btn-3d:active {
             transform: translateY(4px);
@@ -203,68 +206,61 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4">
+<body class="h-[100dvh] overflow-hidden flex flex-col lg:flex-row items-center justify-center p-2 sm:p-3 gap-2 sm:gap-3">
 
-    <!-- 頂部狀態與控制列 -->
-    <header class="w-full max-w-5xl bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 p-3 sm:px-6 flex flex-wrap items-center justify-between gap-2 mb-3">
-        <!-- 左側群組：標題與進度星星、重新開始按鈕上下緊湊排列 -->
-        <div class="flex flex-col gap-1.5">
-            <!-- 標題與說明 -->
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 bg-amber-400 rounded-xl flex items-center justify-center text-white text-xl shadow-inner shrink-0">
+    <!-- 左側控制與選題面板 (左右排版：左側控制區) -->
+    <aside class="w-full lg:w-72 xl:w-80 lg:h-full shrink-0 bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-lg border-2 border-amber-200 p-2.5 sm:p-4 flex flex-col justify-between gap-2 sm:gap-3">
+        <!-- 頂部三元素區：在寬螢幕頂部時三者橫向併排 (標題、星星、藍色提示框)，在左側欄時垂直堆疊 -->
+        <div class="flex flex-wrap sm:flex-nowrap lg:flex-col items-center lg:items-stretch justify-between gap-2 sm:gap-3">
+            <!-- 1. 標題 (字體放大) -->
+            <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-400 rounded-xl flex items-center justify-center text-white text-xl sm:text-2xl shadow-inner shrink-0">
                     <i class="fa-solid fa-ear-listen"></i>
                 </div>
-                <div>
-                    <h1 class="text-lg sm:text-2xl font-bold text-slate-800 tracking-wide leading-tight">Listen & Point!</h1>
-                    <p class="text-xs sm:text-sm text-slate-500 font-medium">Listen carefully and click the right item in the classroom!</p>
-                </div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 tracking-wide leading-tight whitespace-nowrap">Listen & Point!</h1>
             </div>
 
-            <!-- 進度星星與重新開始按鈕 -->
-            <div class="flex items-center gap-2 sm:gap-2.5">
-                <!-- 星星進度條 -->
-                <div id="starsContainer" class="flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                    <!-- JS 動態生成 6 顆星星 -->
-                </div>
+            <!-- 2. 進度星星列 -->
+            <div id="starsContainer" class="flex items-center justify-center gap-1 sm:gap-1.5 bg-slate-100 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 shrink-0">
+                <!-- JS 動態生成 6 顆星星 -->
+            </div>
 
-                <!-- 重新開始按鈕 -->
-                <button onclick="startGame()" class="btn-3d bg-indigo-500 hover:bg-indigo-600 text-white px-3 sm:px-4 py-1.5 rounded-xl font-bold text-sm flex items-center gap-1.5" title="Restart">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Restart</span>
+            <!-- 3. 目前題目提示面板 (寬度拉長15%並置右擺放) -->
+            <div id="promptPanel" class="hidden w-[58%] sm:w-[202px] lg:w-[58%] ml-auto bg-sky-50 border-2 border-sky-200 rounded-2xl px-2.5 py-1.5 sm:py-2 flex flex-row items-center gap-2 shadow-sm min-w-0">
+                <button id="replayAudioBtn" onclick="speakCurrentWord()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm sm:text-base shrink-0" title="Listen Again">
+                    <i class="fa-solid fa-volume-high"></i>
                 </button>
+                <div class="text-left min-w-0">
+                    <span class="text-[9px] sm:text-[10px] text-sky-600 font-bold uppercase tracking-wider block leading-none truncate">Point to the...</span>
+                    <span id="targetWordDisplay" class="text-sm sm:text-base lg:text-lg font-bold text-slate-800 tracking-wide block leading-tight mt-0.5 truncate">Select a word</span>
+                </div>
             </div>
         </div>
 
-        <!-- 右側：目前題目提示面板 (遊戲進行中顯示) -->
-        <div id="promptPanel" class="hidden mx-auto sm:mx-0 bg-sky-50 border-2 border-sky-200 rounded-2xl px-4 py-3 flex flex-row items-center gap-3 shadow-sm">
-            <button id="replayAudioBtn" onclick="speakCurrentWord()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-lg shrink-0" title="Listen Again">
-                <i class="fa-solid fa-volume-high"></i>
-            </button>
-            <div class="text-left">
-                <span class="text-[11px] text-sky-600 font-bold uppercase tracking-wider block leading-none">Point to the...</span>
-                <span id="targetWordDisplay" class="text-xl sm:text-2xl font-bold text-slate-800 tracking-wide block leading-tight mt-0.5">???</span>
+        <!-- 底部：老師選題單字卡列 (電子白板大型觸控卡片) -->
+        <div class="w-full lg:flex-1 flex flex-col justify-end min-h-0">
+            <div id="wordCardsBar" class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-1 gap-1.5 sm:gap-2 lg:h-full lg:max-h-[420px]">
+                <!-- JS 動態生成單字卡片 -->
             </div>
         </div>
-    </header>
+    </aside>
 
-    <!-- 主遊戲畫布容器 (維持原圖 1024x647 比例 16:10.1) -->
-    <main class="w-full max-w-5xl flex-1 flex items-center justify-center my-auto">
-        <div id="gameBoard" class="relative w-full aspect-[1024/647] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white overflow-hidden select-none">
-            
-            <!-- 背景圖片：優先載入附圖，若環境無法讀取本地檔名則自動切換至精緻繪製的同構圖向量教室背景 -->
-            <img id="classroomImg" 
-                 crossOrigin="anonymous"
-                 src="https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background.png" 
-                 alt="Classroom Scene" 
-                 class="w-full h-full object-cover pointer-events-none"
-                 onload="initFloorColorCanvas()"
-                 onerror="handleImageFallback(this)">
+    <!-- 右側主遊戲畫布容器 (自動縮放適應視窗，免捲動) -->
+    <main class="w-full lg:w-auto lg:flex-1 flex-1 lg:h-full min-h-0 min-w-0 flex items-center justify-center">
+        <div id="gameBoard" class="relative h-full max-h-full w-auto max-w-full aspect-[1024/647] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white overflow-hidden select-none">
+            <!-- 教室背景插畫 -->
+            <img id="classroomImg"
+                 src="https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background.png"
+                 alt="Classroom Scene"
+                 crossorigin="anonymous"
+                 onerror="handleImageFallback(this)"
+                 class="w-full h-full object-fill block pointer-events-none">
 
-            <!-- 用於顏色識別與動態光暈遮罩的地板互動圖層 -->
-            <canvas id="floorHighlightCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10 transition-opacity duration-300 opacity-0"></canvas>
+            <!-- 地板顏色識別高亮光罩層 -->
+            <canvas id="floorHighlightCanvas" width="1024" height="647" class="absolute inset-0 w-full h-full pointer-events-none opacity-0 transition-opacity duration-300 z-[5]"></canvas>
 
-            <!-- 互動熱區層 (依據附圖精準定位的百分比座標) -->
-            <div id="hotspotsLayer" class="absolute inset-0 w-full h-full">
+            <!-- 互動點擊熱區層 (座標精準對應教室背景圖各物件位置) -->
+            <div id="hotspotsLayer" class="absolute inset-0">
                 <!-- 1. Ceiling (天花板) -->
                 <div class="hotspot" data-word="ceiling" style="top: 0%; left: 0%; width: 100%; height: 7.2%;" title="Ceiling"></div>
                 
@@ -313,7 +309,7 @@
                     </div>
 
                     <div class="flex justify-center">
-                        <button onclick="event.stopPropagation(); startGame()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-2xl text-lg w-full sm:w-auto">
+                        <button onclick="event.stopPropagation(); startGame()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-8 rounded-2xl text-xl w-full sm:w-auto">
                             <i class="fa-solid fa-rotate-right mr-1"></i> Play Again
                         </button>
                     </div>
@@ -322,293 +318,44 @@
         </div>
     </main>
 
-    <!-- 底部單字卡快速檢視列 (方便學生對照拼字與發音) -->
-    <footer class="w-full max-w-5xl mt-3">
-        <div id="wordCardsBar" class="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            <!-- JS 動態生成單字卡片 -->
-        </div>
-    </footer>
-
     <script>
-        /**
-         * 單字資料庫與座標中心點設定
-         * 座標依據附圖 (1024x647) 精準測量
-         */
+        const AUDIO_BASE_URL = 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/';
+
         const VOCABULARY = [
-            { id: 'ceiling', word: 'ceiling', zh: '天花板', labelX: 50, labelY: 3.6, icon: 'fa-arrow-up' },
-            { id: 'light',   word: 'light',   zh: '電燈',   labelX: 70.6, labelY: 16.5, icon: 'fa-lightbulb' },
-            { id: 'door',    word: 'door',    zh: '門',     labelX: 60.6, labelY: 34.5, icon: 'fa-door-open' },
-            { id: 'window',  word: 'window',  zh: '窗戶',   labelX: 85.3, labelY: 27.9, icon: 'fa-window-maximize' },
-            { id: 'sink',    word: 'sink',    zh: '洗手台', labelX: 89.1, labelY: 42.3, icon: 'fa-faucet' },
-            { id: 'floor',   word: 'floor',   zh: '地板',   labelX: 50, labelY: 82, icon: 'fa-shoe-prints' }
+            { id: 'door',    word: 'door',    audio: 'door.mp3',    labelX: 60.6, labelY: 35.0 },
+            { id: 'ceiling', word: 'ceiling', audio: 'ceiling.mp3', labelX: 48.0, labelY: 3.8  },
+            { id: 'light',   word: 'light',   audio: 'light.mp3',   labelX: 70.6, labelY: 11.0 },
+            { id: 'sink',    word: 'sink',    audio: 'sink.mp3',    labelX: 89.1, labelY: 42.3 },
+            { id: 'floor',   word: 'floor',   audio: 'floor.mp3',   labelX: 52.0, labelY: 82.0 },
+            { id: 'window',  word: 'window',  audio: 'window.mp3',  labelX: 85.3, labelY: 27.9 }
         ];
 
-        // 遊戲狀態管理
-        let state = {
-            queue: [],             // 尚未答對的單字題庫
-            currentTarget: null,   // 目前題目單字物件
-            foundWords: new Set(), // 已答對的單字 ID 集合
-            attempts: 0,           // 總點擊次數 (計算準確率)
-            correctCount: 0,       // 答對次數
-            isProcessing: false,   // 防止連點動畫重疊
-            audioCtx: null,        // Web Audio API 音效上下文
-            currentAudio: null,    // 目前正在播放的單字 MP3 音檔
-            floorCanvas: null,     // 離屏顏色分析畫布
-            floorCtx: null,        // 離屏畫布 2D Context
-            floorReady: false,     // 像素分析是否就緒
+        const PRAISE_FILES = ['good job.mp3', 'great.mp3', 'way to go.mp3'];
+
+        const state = {
+            queue: [],
+            currentTarget: null,
+            foundWords: new Set(),
+            attempts: 0,
+            correctCount: 0,
+            isProcessing: false,
+            audioCtx: null,
+            currentAudio: null,
+            floorMask: null,
+            maskWidth: 1024,
+            maskHeight: 647,
             floorHintInterval: null
         };
 
-        const AUDIO_BASE_URL = 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/';
-        const PRAISE_FILES = ['good job.mp3', 'great.mp3', 'way to go.mp3'];
-
         /**
-         * 判斷單一像素的 RGB 與垂直高度是否屬於「薄荷綠地板」
-         * 排除上方米黃牆面 (y < 48%)、橘色桌子 (R 遠大於 G)、深色鞋子/書包與白色背景
-         */
-        function isFloorPixel(r, g, b, normY) {
-            // 地板只會出現在畫面下半部 (y >= 48%)
-            if (normY < 0.48) return false;
-
-            // 薄荷綠地板特徵：
-            // 1. 綠色通道明顯高於紅色通道 (排除橘色桌子與膚色、木頭色)
-            // 2. 藍綠相近且明度適中偏亮 (排除深藍褲子、深綠書包、黑線條)
-            const greenOverRed = g - r;
-            const blueOverRed = b - r;
-            const brightness = (r + g + b) / 3;
-
-            return (
-                greenOverRed >= 8 &&
-                blueOverRed >= 4 &&
-                Math.abs(g - b) <= 28 &&
-                brightness >= 155 &&
-                brightness <= 242
-            );
-        }
-
-        /**
-         * 初始化離屏 Canvas 讀取背景像素，並預先繪製精準的地板遮罩圖層
-         */
-        function initFloorColorCanvas() {
-            const img = document.getElementById('classroomImg');
-            const highlightCanvas = document.getElementById('floorHighlightCanvas');
-            if (!img || !highlightCanvas) return;
-
-            try {
-                const w = 512;
-                const h = 324;
-                const offCanvas = document.createElement('canvas');
-                offCanvas.width = w;
-                offCanvas.height = h;
-                const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
-                offCtx.drawImage(img, 0, 0, w, h);
-
-                // 測試讀取像素 (驗證 CORS 權限)
-                const imgData = offCtx.getImageData(0, 0, w, h);
-                const data = imgData.data;
-
-                state.floorCanvas = offCanvas;
-                state.floorCtx = offCtx;
-                state.floorReady = true;
-
-                // 同步建立可視化的地板提示/答對光暈遮罩
-                highlightCanvas.width = w;
-                highlightCanvas.height = h;
-                const hCtx = highlightCanvas.getContext('2d');
-                const maskData = hCtx.createImageData(w, h);
-
-                for (let y = 0; y < h; y++) {
-                    const normY = y / h;
-                    for (let x = 0; x < w; x++) {
-                        const idx = (y * w + x) * 4;
-                        const r = data[idx];
-                        const g = data[idx + 1];
-                        const b = data[idx + 2];
-
-                        if (isFloorPixel(r, g, b, normY)) {
-                            // 填入半透明翡翠綠高亮色
-                            maskData.data[idx] = 34;      // R
-                            maskData.data[idx + 1] = 197; // G
-                            maskData.data[idx + 2] = 94;  // B
-                            maskData.data[idx + 3] = 95;  // Alpha
-                        }
-                    }
-                }
-                hCtx.putImageData(maskData, 0, 0);
-            } catch (err) {
-                // 若跨域讀取受限，自動退回幾何區域判定
-                state.floorReady = false;
-            }
-        }
-
-        /**
-         * 檢測滑鼠點擊位置 (clientX, clientY) 是否為地板顏色
-         * 採樣點擊周圍 5x5 像素多數決，避免誤觸細線或雜點
-         */
-        function checkFloorAtPoint(clientX, clientY) {
-            const board = document.getElementById('gameBoard');
-            const rect = board.getBoundingClientRect();
-            const normX = (clientX - rect.left) / rect.width;
-            const normY = (clientY - rect.top) / rect.height;
-
-            if (normX < 0 || normX > 1 || normY < 0.48 || normY > 1) return false;
-
-            if (state.floorReady && state.floorCtx) {
-                const w = state.floorCanvas.width;
-                const h = state.floorCanvas.height;
-                const cx = Math.floor(normX * w);
-                const cy = Math.floor(normY * h);
-
-                let matchCount = 0;
-                let totalSamples = 0;
-
-                for (let dy = -2; dy <= 2; dy++) {
-                    for (let dx = -2; dx <= 2; dx++) {
-                        const sx = Math.min(w - 1, Math.max(0, cx + dx));
-                        const sy = Math.min(h - 1, Math.max(0, cy + dy));
-                        const pixel = state.floorCtx.getImageData(sx, sy, 1, 1).data;
-                        totalSamples++;
-                        if (isFloorPixel(pixel[0], pixel[1], pixel[2], sy / h)) {
-                            matchCount++;
-                        }
-                    }
-                }
-                return (matchCount / totalSamples) >= 0.6;
-            }
-
-            // 備援幾何判定
-            return normY >= 0.54;
-        }
-
-        /**
-         * 初始化頁面元素
-         */
-        function init() {
-            renderStars();
-            renderWordCards();
-            setupHotspotListeners();
-            
-            const img = document.getElementById('classroomImg');
-            if (img && img.complete) {
-                initFloorColorCanvas();
-            }
-
-            // 預載語音合成引擎
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.getVoices();
-            }
-        }
-
-        /**
-         * 語音合成備援：當 MP3 檔案無法載入或播放被阻擋時，自動朗讀單字或短語
-         */
-        function fallbackSpeech(text) {
-            if (!text || !('speechSynthesis' in window)) return;
-            try {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.92;
-                utterance.pitch = 1.05;
-
-                const voices = window.speechSynthesis.getVoices();
-                const preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural')))
-                                    || voices.find(v => v.lang.includes('en'));
-                if (preferredVoice) {
-                    utterance.voice = preferredVoice;
-                }
-
-                window.speechSynthesis.speak(utterance);
-            } catch (e) {
-                // 忽略瀏覽器語音限制錯誤
-            }
-        }
-
-        /**
-         * 依序播放多個 MP3 音檔 (支援空白鍵編碼與語音備援)
-         */
-        function playAudioSequence(fileList, onComplete) {
-            if (!fileList || fileList.length === 0) {
-                if (onComplete) onComplete();
-                return;
-            }
-
-            // 停止先前的音檔或語音
-            if (state.currentAudio) {
-                state.currentAudio.pause();
-                state.currentAudio.currentTime = 0;
-            }
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
-
-            let index = 0;
-
-            function playNext() {
-                if (index >= fileList.length) {
-                    if (onComplete) onComplete();
-                    return;
-                }
-
-                const fileName = fileList[index];
-                index++;
-                const encodedName = encodeURIComponent(fileName);
-                const audioUrl = `${AUDIO_BASE_URL}${encodedName}`;
-                const audio = new Audio(audioUrl);
-                state.currentAudio = audio;
-
-                let movedNext = false;
-                const advance = () => {
-                    if (movedNext) return;
-                    movedNext = true;
-                    playNext();
-                };
-
-                audio.onended = advance;
-                audio.onerror = () => {
-                    const fallbackText = fileName.replace('.mp3', '');
-                    fallbackSpeech(fallbackText);
-                    setTimeout(advance, 850);
-                };
-
-                audio.play().catch(() => {
-                    const fallbackText = fileName.replace('.mp3', '');
-                    fallbackSpeech(fallbackText);
-                    setTimeout(advance, 850);
-                });
-            }
-
-            playNext();
-        }
-
-        /**
-         * 播放單字 MP3 音檔 (K3/L1/{word}.mp3)，若無法載入則自動切換為語音合成朗讀單字
-         */
-        function playWordAudio(word) {
-            if (!word) return;
-            playAudioSequence([`${word.toLowerCase()}.mp3`]);
-        }
-
-        /**
-         * 播放目前題目單字 MP3
-         */
-        function speakCurrentWord() {
-            if (!state.currentTarget) return;
-            const btn = document.getElementById('replayAudioBtn');
-            btn.classList.add('scale-110', 'bg-amber-500');
-            setTimeout(() => btn.classList.remove('scale-110', 'bg-amber-500'), 300);
-
-            playWordAudio(state.currentTarget.word);
-        }
-
-        /**
-         * 開始或重新開始遊戲
+         * 開始或重新開始遊戲 (老師觸控選題模式)
          */
         function startGame() {
             state.foundWords.clear();
             state.attempts = 0;
             state.correctCount = 0;
             state.isProcessing = false;
+            state.currentTarget = null;
 
             // 隱藏遮罩
             document.getElementById('startOverlay').classList.add('hidden');
@@ -630,65 +377,108 @@
 
             gameBoard.classList.add('game-active');
             promptPanel.classList.remove('hidden');
+            document.getElementById('targetWordDisplay').textContent = 'Tap a word below';
             
-            // 洗牌題庫
-            state.queue = [...VOCABULARY].sort(() => Math.random() - 0.5);
+            state.queue = [...VOCABULARY];
             renderStars();
             renderWordCards();
-            nextQuestion();
         }
 
         /**
-         * 進入下一題
+         * 老師手動指定目前題目單字並播放語音
          */
-        function nextQuestion() {
-            // 移除舊提示
+        function selectTargetWord(wordId) {
+            const vocabObj = VOCABULARY.find(v => v.id === wordId);
+            if (!vocabObj) return;
+
+            // 若尚未按下 Start，自動進入遊戲狀態
+            if (!document.getElementById('startOverlay').classList.contains('hidden')) {
+                document.getElementById('startOverlay').classList.add('hidden');
+                document.getElementById('gameBoard').classList.add('game-active');
+                document.getElementById('promptPanel').classList.remove('hidden');
+            }
+            document.getElementById('victoryOverlay').classList.add('hidden');
+
+            // 清除舊提示
             document.querySelectorAll('.hotspot').forEach(el => el.classList.remove('hint-active'));
             stopFloorHint();
 
-            if (state.queue.length === 0) {
+            state.isProcessing = false;
+            state.currentTarget = vocabObj;
+            document.getElementById('targetWordDisplay').textContent = vocabObj.word;
+
+            renderWordCards();
+            highlightBottomCard(wordId);
+            speakCurrentWord();
+        }
+
+        /**
+         * 學生答對後，清除當前選定狀態並等待老師點選下一個下方單字 (若全數完成則顯示勝利)
+         */
+        function nextQuestion() {
+            document.querySelectorAll('.hotspot').forEach(el => el.classList.remove('hint-active'));
+            stopFloorHint();
+
+            if (state.foundWords.size >= VOCABULARY.length) {
                 handleVictory();
                 return;
             }
 
-            state.currentTarget = state.queue[0];
-            document.getElementById('targetWordDisplay').textContent = state.currentTarget.word;
-
-            // 自動播放單字音檔
-            setTimeout(() => speakCurrentWord(), 250);
+            state.currentTarget = null;
+            document.getElementById('targetWordDisplay').textContent = 'Tap next word';
+            renderWordCards();
         }
 
         /**
-         * 綁定所有熱區與地板顏色識別點擊事件
+         * 統一取得滑鼠或電子白板觸控事件的座標
+         */
+        function getEventCoords(e) {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
+            }
+            return { clientX: e.clientX, clientY: e.clientY };
+        }
+
+        /**
+         * 綁定所有熱區與地板顏色識別觸控/點擊事件 (支援電子白板多點與即時觸屏)
          */
         function setupHotspotListeners() {
             // 1. 綁定上方/牆面熱區 (ceiling, light, door, window, sink)
             document.querySelectorAll('.hotspot').forEach(spot => {
-                spot.addEventListener('click', (e) => {
+                const onSpotInteract = (e) => {
+                    if (e.type === 'touchend') e.preventDefault();
                     e.stopPropagation();
                     const wordId = spot.getAttribute('data-word');
                     handleSpotClick(wordId, spot, e);
-                });
+                };
+                spot.addEventListener('click', onSpotInteract);
+                spot.addEventListener('touchend', onSpotInteract, { passive: false });
             });
 
-            // 2. 點擊背景與顏色識別判定 (包含 floor 顏色識別與空白處誤觸)
+            // 2. 觸控/點擊背景與顏色識別判定 (包含 floor 顏色識別與空白處誤觸)
             const gameBoard = document.getElementById('gameBoard');
-            gameBoard.addEventListener('click', (e) => {
+            const onBoardInteract = (e) => {
                 if (!state.currentTarget || state.isProcessing) return;
                 if (e.target.closest('#startOverlay') || e.target.closest('#victoryOverlay')) return;
                 if (e.target.classList.contains('hotspot')) return;
+                if (e.type === 'touchend') e.preventDefault();
+
+                const { clientX, clientY } = getEventCoords(e);
 
                 // 利用顏色識別檢查是否點到了薄荷綠地板
-                if (checkFloorAtPoint(e.clientX, e.clientY)) {
+                if (checkFloorAtPoint(clientX, clientY)) {
                     const floorCanvas = document.getElementById('floorHighlightCanvas');
                     handleSpotClick('floor', floorCanvas, e);
                     return;
                 }
 
                 state.attempts++;
-                triggerMatchEffect(false, e.clientX, e.clientY);
+                triggerMatchEffect(false, clientX, clientY);
                 playAudioSequence(['error.mp3', 'try again.mp3']);
-            });
+            };
+
+            gameBoard.addEventListener('click', onBoardInteract);
+            gameBoard.addEventListener('touchend', onBoardInteract, { passive: false });
 
             // 3. 滑鼠移動到地板區域時顯示可點擊游標 (pointer)
             gameBoard.addEventListener('mousemove', (e) => {
@@ -755,22 +545,26 @@
         }
 
         /**
-         * 處理熱區被點擊的邏輯
+         * 處理熱區被觸控/點擊的邏輯
          */
         function handleSpotClick(wordId, element, event) {
             const vocabObj = VOCABULARY.find(v => v.id === wordId);
             if (!vocabObj) return;
 
-            // 聽力測驗邏輯
             if (state.isProcessing || !state.currentTarget) return;
             state.attempts++;
+
+            const { clientX, clientY } = getEventCoords(event);
 
             if (wordId === state.currentTarget.id) {
                 // 答對了！
                 state.isProcessing = true;
-                state.correctCount++;
-                state.foundWords.add(wordId);
-                state.queue.shift(); // 移除已答對題目
+                if (!state.foundWords.has(wordId)) {
+                    state.correctCount++;
+                    state.foundWords.add(wordId);
+                    addPermanentLabel(vocabObj);
+                }
+                state.queue = state.queue.filter(item => item.id !== wordId);
 
                 const randomPraise = PRAISE_FILES[Math.floor(Math.random() * PRAISE_FILES.length)];
 
@@ -782,12 +576,11 @@
                     element.classList.add('hotspot-found');
                 }
 
-                triggerMatchEffect(true, event.clientX, event.clientY);
-                addPermanentLabel(vocabObj);
+                triggerMatchEffect(true, clientX, clientY);
                 renderStars();
                 renderWordCards();
 
-                // 依序播放 correct.mp3 -> 隨機鼓勵音效，播放完畢後再進入下一題
+                // 依序播放 correct.mp3 -> 隨機鼓勵音效，播放完畢後等待老師點選下一個單字
                 playAudioSequence(['correct.mp3', randomPraise], () => {
                     setTimeout(() => {
                         state.isProcessing = false;
@@ -797,7 +590,7 @@
 
             } else {
                 // 答錯了：依序播放 error.mp3 -> try again.mp3
-                triggerMatchEffect(false, event.clientX, event.clientY);
+                triggerMatchEffect(false, clientX, clientY);
                 playAudioSequence(['error.mp3', 'try again.mp3']);
             }
         }
@@ -857,7 +650,7 @@
         }
 
         /**
-         * 渲染底部單字卡 (可點擊聽發音)
+         * 渲染底部老師選題單字卡 (加大觸控高度與感應，方便電子白板點擊)
          */
         function renderWordCards() {
             const bar = document.getElementById('wordCardsBar');
@@ -865,22 +658,23 @@
 
             VOCABULARY.forEach(item => {
                 const isFound = state.foundWords.has(item.id);
+                const isCurrent = state.currentTarget && state.currentTarget.id === item.id;
                 const card = document.createElement('button');
                 card.id = `card-${item.id}`;
-                card.onclick = () => {
-                    playWordAudio(item.word);
-                    highlightBottomCard(item.id);
-                };
+                card.onclick = () => selectTargetWord(item.id);
 
-                card.className = `btn-3d rounded-xl p-2.5 text-center border-2 flex items-center justify-center transition-all ${
-                    isFound 
-                    ? 'bg-emerald-50 border-emerald-400 text-emerald-800' 
-                    : 'bg-white border-slate-200 text-slate-700 hover:border-sky-400'
-                }`;
+                let styleClass = 'bg-white border-slate-200 text-slate-700 hover:border-sky-400';
+                if (isCurrent) {
+                    styleClass = 'bg-sky-100 border-sky-500 text-sky-900 ring-2 ring-sky-400';
+                } else if (isFound) {
+                    styleClass = 'bg-emerald-50 border-emerald-400 text-emerald-800';
+                }
+
+                card.className = `btn-3d rounded-xl py-2 sm:py-2.5 lg:py-2 px-3 text-center lg:text-left border-2 flex items-center justify-center lg:justify-start transition-all ${styleClass}`;
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-1.5 font-bold text-sm sm:text-base">
-                        <i class="fa-solid ${isFound ? 'fa-check-circle text-emerald-500' : 'fa-volume-low text-sky-500'} text-xs"></i>
+                    <div class="flex items-center gap-2 font-bold text-sm sm:text-base lg:text-lg">
+                        <i class="fa-solid ${isFound ? 'fa-check-circle text-emerald-500' : (isCurrent ? 'fa-volume-high text-sky-600 animate-pulse' : 'fa-volume-low text-sky-500')} text-sm sm:text-base"></i>
                         <span>${item.word}</span>
                     </div>
                 `;
@@ -913,6 +707,192 @@
                     origin: { y: 0.6 }
                 });
             }
+        }
+
+        /**
+         * 初始化離屏 Canvas 像素顏色識別系統，精準偵測薄荷綠地板區域
+         */
+        function initFloorColorDetection() {
+            const img = document.getElementById('classroomImg');
+            const highlightCanvas = document.getElementById('floorHighlightCanvas');
+            if (!img || !highlightCanvas) return;
+
+            const processImage = () => {
+                try {
+                    const w = state.maskWidth;
+                    const h = state.maskHeight;
+                    const offCanvas = document.createElement('canvas');
+                    offCanvas.width = w;
+                    offCanvas.height = h;
+                    const offCtx = offCanvas.getContext('2d');
+                    offCtx.drawImage(img, 0, 0, w, h);
+
+                    const imgData = offCtx.getImageData(0, 0, w, h).data;
+                    const mask = new Uint8Array(w * h);
+
+                    const hCtx = highlightCanvas.getContext('2d');
+                    const hImgData = hCtx.createImageData(w, h);
+                    const outData = hImgData.data;
+
+                    for (let y = 0; y < h; y++) {
+                        // 地板位於畫面下半部 (y > 49% 高度)
+                        if (y < h * 0.49) continue;
+
+                        for (let x = 0; x < w; x++) {
+                            const idx = (y * w + x) * 4;
+                            const r = imgData[idx];
+                            const g = imgData[idx + 1];
+                            const b = imgData[idx + 2];
+
+                            // 薄荷綠地板特徵：亮度高、綠色通道明顯高於紅色 (排除橘色圓桌、牆面與人物深色衣物)
+                            const isMintFloor = (g >= 180 && r >= 150 && b >= 165 && (g - r) >= 8 && (r - b) < 25);
+                            if (isMintFloor) {
+                                mask[y * w + x] = 1;
+                                outData[idx] = 34;      // R (Emerald-500)
+                                outData[idx + 1] = 197; // G
+                                outData[idx + 2] = 94;  // B
+                                outData[idx + 3] = 95;  // Alpha
+                            }
+                        }
+                    }
+
+                    state.floorMask = mask;
+                    hCtx.putImageData(hImgData, 0, 0);
+                } catch (err) {
+                    // 若跨域圖片讀取像素受限，啟用幾何高度備援判定
+                    state.floorMask = null;
+                }
+            };
+
+            if (img.complete && img.naturalWidth > 0) {
+                processImage();
+            } else {
+                img.addEventListener('load', processImage);
+            }
+        }
+
+        /**
+         * 檢查點擊座標是否落在識別出的地板像素區域內 (5x5 鄰域多數決)
+         */
+        function checkFloorAtPoint(clientX, clientY) {
+            const board = document.getElementById('gameBoard');
+            if (!board) return false;
+
+            const rect = board.getBoundingClientRect();
+            const relX = (clientX - rect.left) / rect.width;
+            const relY = (clientY - rect.top) / rect.height;
+
+            if (relX < 0 || relX > 1 || relY < 0 || relY > 1) return false;
+
+            // 若無像素遮罩資料，使用下半部安全區域備援
+            if (!state.floorMask) {
+                return relY >= 0.54;
+            }
+
+            const cx = Math.floor(relX * state.maskWidth);
+            const cy = Math.floor(relY * state.maskHeight);
+            let hits = 0;
+            let samples = 0;
+
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    const sx = cx + dx;
+                    const sy = cy + dy;
+                    if (sx >= 0 && sx < state.maskWidth && sy >= 0 && sy < state.maskHeight) {
+                        samples++;
+                        if (state.floorMask[sy * state.maskWidth + sx] === 1) {
+                            hits++;
+                        }
+                    }
+                }
+            }
+
+            return samples > 0 && (hits / samples) >= 0.4;
+        }
+
+        /**
+         * 依序播放多個 MP3 音效檔，全部播完後執行 onComplete
+         */
+        function playAudioSequence(fileList, onComplete) {
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio = null;
+            }
+
+            let index = 0;
+            const playNext = () => {
+                if (index >= fileList.length) {
+                    state.currentAudio = null;
+                    if (typeof onComplete === 'function') onComplete();
+                    return;
+                }
+
+                const fileName = fileList[index++];
+                const audio = new Audio(AUDIO_BASE_URL + encodeURIComponent(fileName));
+                state.currentAudio = audio;
+
+                audio.onended = playNext;
+                audio.onerror = () => {
+                    // 備援合成音效
+                    if (fileName === 'correct.mp3') playSoundEffect('correct');
+                    else if (fileName === 'error.mp3') playSoundEffect('wrong');
+                    playNext();
+                };
+
+                audio.play().catch(() => {
+                    if (fileName === 'correct.mp3') playSoundEffect('correct');
+                    else if (fileName === 'error.mp3') playSoundEffect('wrong');
+                    playNext();
+                });
+            };
+
+            playNext();
+        }
+
+        /**
+         * 播放目前題目單字的 MP3 發音 (備援使用瀏覽器英語語音合成)
+         */
+        function speakCurrentWord() {
+            if (!state.currentTarget) return;
+            const target = state.currentTarget;
+
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio = null;
+            }
+
+            const audio = new Audio(AUDIO_BASE_URL + encodeURIComponent(target.audio));
+            state.currentAudio = audio;
+
+            audio.onerror = () => fallbackSpeech(target.word);
+            audio.play().catch(() => fallbackSpeech(target.word));
+        }
+
+        /**
+         * 瀏覽器內建英語單字朗讀備援
+         */
+        function fallbackSpeech(word) {
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(word);
+                    utter.lang = 'en-US';
+                    utter.rate = 0.9;
+                    window.speechSynthesis.speak(utter);
+                }
+            } catch (e) {
+                // 忽略不支援語音合成的環境
+            }
+        }
+
+        /**
+         * 頁面載入後初始化所有元件與監聽器
+         */
+        function init() {
+            renderStars();
+            renderWordCards();
+            setupHotspotListeners();
+            initFloorColorDetection();
         }
 
         // 啟動初始化
