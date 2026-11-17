@@ -206,47 +206,47 @@
         }
     </style>
 </head>
-<body class="h-[100dvh] overflow-hidden flex flex-col lg:flex-row items-center justify-center p-2 sm:p-3 gap-2 sm:gap-3">
+<body class="h-[100dvh] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-2.5 gap-2">
 
-    <!-- 左側控制與選題面板 (左右排版：左側控制區) -->
-    <aside class="w-full lg:w-72 xl:w-80 lg:h-full shrink-0 bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-lg border-2 border-amber-200 p-2.5 sm:p-4 flex flex-col justify-between gap-2 sm:gap-3">
-        <!-- 頂部三元素區：在寬螢幕頂部時三者橫向併排 (標題、星星、藍色提示框)，在左側欄時垂直堆疊 -->
-        <div class="flex flex-wrap sm:flex-nowrap lg:flex-col items-center lg:items-stretch justify-between gap-2 sm:gap-3">
-            <!-- 1. 標題 (字體放大) -->
-            <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-400 rounded-xl flex items-center justify-center text-white text-xl sm:text-2xl shadow-inner shrink-0">
+    <!-- 頂部控制與選題面板 (16:9 寬螢幕下置於上方，維持單頁免捲動) -->
+    <aside class="w-full max-w-[1360px] shrink-0 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 px-3 py-2 flex flex-col gap-1.5">
+        <!-- 第一列：標題、星星進度、目前題目提示框並排 -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
+            <!-- 1. 標題 -->
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 bg-amber-400 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl shadow-inner shrink-0">
                     <i class="fa-solid fa-ear-listen"></i>
                 </div>
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 tracking-wide leading-tight whitespace-nowrap">Listen & Point!</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-wide leading-tight whitespace-nowrap">Listen & Point!</h1>
             </div>
 
             <!-- 2. 進度星星列 -->
-            <div id="starsContainer" class="flex items-center justify-center gap-1 sm:gap-1.5 bg-slate-100 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200 shrink-0">
+            <div id="starsContainer" class="flex items-center justify-center gap-1 sm:gap-1.5 bg-slate-100 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 shrink-0">
                 <!-- JS 動態生成 6 顆星星 -->
             </div>
 
             <!-- 3. 目前題目提示面板 (寬度拉長15%並置右擺放) -->
-            <div id="promptPanel" class="hidden w-[58%] sm:w-[202px] lg:w-[58%] ml-auto bg-sky-50 border-2 border-sky-200 rounded-2xl px-2.5 py-1.5 sm:py-2 flex flex-row items-center gap-2 shadow-sm min-w-0">
-                <button id="replayAudioBtn" onclick="speakCurrentWord()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm sm:text-base shrink-0" title="Listen Again">
+            <div id="promptPanel" class="hidden w-[58%] sm:w-[202px] ml-auto bg-sky-50 border-2 border-sky-200 rounded-xl px-2.5 py-1 flex flex-row items-center gap-2 shadow-sm min-w-0">
+                <button id="replayAudioBtn" onclick="speakCurrentWord()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0" title="Listen Again">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
                 <div class="text-left min-w-0">
                     <span class="text-[9px] sm:text-[10px] text-sky-600 font-bold uppercase tracking-wider block leading-none truncate">Point to the...</span>
-                    <span id="targetWordDisplay" class="text-sm sm:text-base lg:text-lg font-bold text-slate-800 tracking-wide block leading-tight mt-0.5 truncate">Select a word</span>
+                    <span id="targetWordDisplay" class="text-sm sm:text-base font-bold text-slate-800 tracking-wide block leading-tight mt-0.5 truncate">Select a word</span>
                 </div>
             </div>
         </div>
 
-        <!-- 底部：老師選題單字卡列 (電子白板大型觸控卡片) -->
-        <div class="w-full lg:flex-1 flex flex-col justify-end min-h-0">
-            <div id="wordCardsBar" class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-1 gap-1.5 sm:gap-2 lg:h-full lg:max-h-[420px]">
+        <!-- 第二列：老師選題單字卡列 (6張橫向並排，節省垂直高度) -->
+        <div class="w-full">
+            <div id="wordCardsBar" class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
                 <!-- JS 動態生成單字卡片 -->
             </div>
         </div>
     </aside>
 
-    <!-- 右側主遊戲畫布容器 (自動縮放適應視窗，免捲動) -->
-    <main class="w-full lg:w-auto lg:flex-1 flex-1 lg:h-full min-h-0 min-w-0 flex items-center justify-center">
+    <!-- 主遊戲畫布容器 (自動縮放適應剩餘高度，16:9 比例免捲動全覽) -->
+    <main class="w-full flex-1 min-h-0 min-w-0 flex items-center justify-center">
         <div id="gameBoard" class="relative h-full max-h-full w-auto max-w-full aspect-[1024/647] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white overflow-hidden select-none">
             <!-- 教室背景插畫 -->
             <img id="classroomImg"
@@ -670,11 +670,11 @@
                     styleClass = 'bg-emerald-50 border-emerald-400 text-emerald-800';
                 }
 
-                card.className = `btn-3d rounded-xl py-2 sm:py-2.5 lg:py-2 px-3 text-center lg:text-left border-2 flex items-center justify-center lg:justify-start transition-all ${styleClass}`;
+                card.className = `btn-3d rounded-xl py-1.5 sm:py-2 px-2.5 text-center border-2 flex items-center justify-center transition-all ${styleClass}`;
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-2 font-bold text-sm sm:text-base lg:text-lg">
-                        <i class="fa-solid ${isFound ? 'fa-check-circle text-emerald-500' : (isCurrent ? 'fa-volume-high text-sky-600 animate-pulse' : 'fa-volume-low text-sky-500')} text-sm sm:text-base"></i>
+                    <div class="flex items-center gap-1.5 font-bold text-sm sm:text-base">
+                        <i class="fa-solid ${isFound ? 'fa-check-circle text-emerald-500' : (isCurrent ? 'fa-volume-high text-sky-600 animate-pulse' : 'fa-volume-low text-sky-500')} text-xs sm:text-sm"></i>
                         <span>${item.word}</span>
                     </div>
                 `;
