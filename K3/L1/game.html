@@ -206,12 +206,12 @@
         }
     </style>
 </head>
-<body class="h-[100dvh] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-2.5 gap-2">
+<body class="h-[100dvh] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 gap-2">
 
-    <!-- 頂部控制與選題面板 (16:9 寬螢幕下置於上方，維持單頁免捲動) -->
-    <aside class="w-full max-w-[1360px] shrink-0 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 px-3 py-2 flex flex-col gap-1.5">
-        <!-- 第一列：標題、星星進度、目前題目提示框並排 -->
-        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
+    <!-- 頂部控制與選題橫幅 (置於畫面上方，維持單頁免捲動) -->
+    <header class="w-full max-w-6xl shrink-0 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 px-3 py-2 flex flex-col gap-1.5">
+        <!-- 上排：標題、星星進度、目前題目提示框併排 -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
             <!-- 1. 標題 -->
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-9 h-9 sm:w-10 sm:h-10 bg-amber-400 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl shadow-inner shrink-0">
@@ -226,7 +226,7 @@
             </div>
 
             <!-- 3. 目前題目提示面板 (寬度拉長15%並置右擺放) -->
-            <div id="promptPanel" class="hidden w-[58%] sm:w-[202px] ml-auto bg-sky-50 border-2 border-sky-200 rounded-xl px-2.5 py-1 flex flex-row items-center gap-2 shadow-sm min-w-0">
+            <div id="promptPanel" class="hidden w-[58%] sm:w-[202px] ml-auto bg-sky-50 border-2 border-sky-200 rounded-xl px-2.5 py-1.5 flex flex-row items-center gap-2 shadow-sm min-w-0">
                 <button id="replayAudioBtn" onclick="speakCurrentWord()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0" title="Listen Again">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
@@ -237,15 +237,15 @@
             </div>
         </div>
 
-        <!-- 第二列：老師選題單字卡列 (6張橫向並排，節省垂直高度) -->
+        <!-- 下排：老師選題單字卡列 (橫向並排) -->
         <div class="w-full">
             <div id="wordCardsBar" class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
                 <!-- JS 動態生成單字卡片 -->
             </div>
         </div>
-    </aside>
+    </header>
 
-    <!-- 主遊戲畫布容器 (自動縮放適應剩餘高度，16:9 比例免捲動全覽) -->
+    <!-- 主遊戲畫布容器 (自動縮放適應剩餘寬高，免捲動全覽) -->
     <main class="w-full flex-1 min-h-0 min-w-0 flex items-center justify-center">
         <div id="gameBoard" class="relative h-full max-h-full w-auto max-w-full aspect-[1024/647] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white overflow-hidden select-none">
             <!-- 教室背景插畫 -->
