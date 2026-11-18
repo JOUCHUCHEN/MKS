@@ -210,14 +210,24 @@
 
     <!-- 頂部控制與選題橫幅 (置於畫面上方，維持單頁免捲動) -->
     <header class="w-full max-w-6xl shrink-0 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 px-3 py-2 flex flex-col gap-1.5">
-        <!-- 上排：標題、星星進度、目前題目提示框併排 -->
+        <!-- 上排：標題、關卡切換、星星進度、目前題目提示框併排 -->
         <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-            <!-- 1. 標題 -->
+            <!-- 1. 標題與關卡切換按鈕 -->
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-9 h-9 sm:w-10 sm:h-10 bg-amber-400 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl shadow-inner shrink-0">
                     <i class="fa-solid fa-ear-listen"></i>
                 </div>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-wide leading-tight whitespace-nowrap">Listen & Point!</h1>
+
+                <!-- 關卡切換 (Stage 1 / Stage 2) -->
+                <div class="flex items-center bg-amber-100/80 p-1 rounded-xl border border-amber-200 gap-1 ml-1">
+                    <button id="stageBtn1" onclick="switchStage(1)" class="px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all bg-amber-500 text-white shadow-xs">
+                        Stage 1
+                    </button>
+                    <button id="stageBtn2" onclick="switchStage(2)" class="px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all text-amber-800 hover:bg-amber-200/60">
+                        Stage 2
+                    </button>
+                </div>
             </div>
 
             <!-- 2. 進度星星列 -->
@@ -293,23 +303,26 @@
             <div id="victoryOverlay" class="hidden absolute inset-0 bg-slate-900/65 backdrop-blur-sm z-30 flex items-center justify-center p-4">
                 <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl border-4 border-emerald-400">
                     <div class="text-5xl mb-3">🏆🎉</div>
-                    <h2 class="text-3xl font-bold text-slate-800 mb-1">Awesome! All Found!</h2>
-                    <p class="text-slate-600 mb-4">You have mastered all 6 classroom words!</p>
+                    <h2 id="victoryTitle" class="text-3xl font-bold text-slate-800 mb-1">Stage 1 Complete!</h2>
+                    <p id="victorySubtitle" class="text-slate-600 mb-4">You have mastered all 6 classroom words!</p>
                     
-                    <div class="bg-amber-50 rounded-2xl p-4 mb-6 border border-amber-200 flex justify-around">
+                    <div class="bg-amber-50 rounded-2xl p-3 mb-5 border border-amber-200 flex justify-around items-center">
                         <div>
-                            <div class="text-xs text-slate-500 font-bold uppercase">Stars</div>
-                            <div class="text-2xl font-bold text-amber-500">6 / 6 ⭐</div>
+                            <span class="text-xs font-bold uppercase text-amber-600 block">Words Found</span>
+                            <span class="text-2xl font-bold text-slate-800">6 / 6</span>
                         </div>
-                        <div class="w-px bg-amber-200"></div>
+                        <div class="h-8 w-px bg-amber-200"></div>
                         <div>
-                            <div class="text-xs text-slate-500 font-bold uppercase">Accuracy</div>
-                            <div id="accuracyDisplay" class="text-2xl font-bold text-emerald-600">100%</div>
+                            <span class="text-xs font-bold uppercase text-amber-600 block">Accuracy</span>
+                            <span id="accuracyDisplay" class="text-2xl font-bold text-emerald-600">100%</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-center">
-                        <button onclick="event.stopPropagation(); startGame()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-8 rounded-2xl text-xl w-full sm:w-auto">
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button id="nextStageBtn" onclick="event.stopPropagation(); switchStage(2)" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold py-3.5 px-7 rounded-2xl text-xl w-full sm:w-auto">
+                            <i class="fa-solid fa-arrow-right mr-1"></i> Next Stage
+                        </button>
+                        <button onclick="event.stopPropagation(); startGame()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-7 rounded-2xl text-xl w-full sm:w-auto">
                             <i class="fa-solid fa-rotate-right mr-1"></i> Play Again
                         </button>
                     </div>
@@ -321,18 +334,62 @@
     <script>
         const AUDIO_BASE_URL = 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/';
 
+        const STAGES = {
+            1: {
+                id: 1,
+                name: 'Stage 1',
+                bgUrl: 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background.png',
+                hotspots: {
+                    ceiling: { top: '0%', left: '0%', width: '100%', height: '7.2%', borderRadius: '12px' },
+                    light:   { top: '5.5%', left: '67%', width: '7.2%', height: '10.5%', borderRadius: '50%' },
+                    door:    { top: '17.2%', left: '55.3%', width: '10.6%', height: '35.8%', borderRadius: '12px' },
+                    window:  { top: '18.8%', left: '75.2%', width: '20.2%', height: '18.2%', borderRadius: '12px' },
+                    sink:    { top: '38.2%', left: '84.8%', width: '8.6%', height: '8.2%', borderRadius: '12px' }
+                },
+                labels: {
+                    door:    { labelX: 60.6, labelY: 35.0 },
+                    ceiling: { labelX: 48.0, labelY: 3.8  },
+                    light:   { labelX: 70.6, labelY: 11.0 },
+                    sink:    { labelX: 89.1, labelY: 42.3 },
+                    floor:   { labelX: 52.0, labelY: 82.0 },
+                    window:  { labelX: 85.3, labelY: 27.9 }
+                }
+            },
+            2: {
+                id: 2,
+                name: 'Stage 2',
+                bgUrl: 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background-2.png',
+                hotspots: {
+                    ceiling: { top: '0%', left: '0%', width: '100%', height: '8.5%', borderRadius: '12px' },
+                    light:   { top: '1.2%', left: '44.5%', width: '11%', height: '9.5%', borderRadius: '50%' },
+                    door:    { top: '14%', left: '1.5%', width: '19%', height: '69%', borderRadius: '12px' },
+                    window:  { top: '18%', left: '63.5%', width: '21.5%', height: '33%', borderRadius: '12px' },
+                    sink:    { top: '52%', left: '72%', width: '18%', height: '21.5%', borderRadius: '16px' }
+                },
+                labels: {
+                    door:    { labelX: 11.0, labelY: 48.0 },
+                    ceiling: { labelX: 25.0, labelY: 4.5  },
+                    light:   { labelX: 50.0, labelY: 6.5  },
+                    sink:    { labelX: 81.0, labelY: 62.5 },
+                    floor:   { labelX: 48.0, labelY: 91.0 },
+                    window:  { labelX: 74.0, labelY: 34.5 }
+                }
+            }
+        };
+
         const VOCABULARY = [
-            { id: 'door',    word: 'door',    audio: 'door.mp3',    labelX: 60.6, labelY: 35.0 },
-            { id: 'ceiling', word: 'ceiling', audio: 'ceiling.mp3', labelX: 48.0, labelY: 3.8  },
-            { id: 'light',   word: 'light',   audio: 'light.mp3',   labelX: 70.6, labelY: 11.0 },
-            { id: 'sink',    word: 'sink',    audio: 'sink.mp3',    labelX: 89.1, labelY: 42.3 },
-            { id: 'floor',   word: 'floor',   audio: 'floor.mp3',   labelX: 52.0, labelY: 82.0 },
-            { id: 'window',  word: 'window',  audio: 'window.mp3',  labelX: 85.3, labelY: 27.9 }
+            { id: 'door',    word: 'door',    audio: 'door.mp3'    },
+            { id: 'ceiling', word: 'ceiling', audio: 'ceiling.mp3' },
+            { id: 'light',   word: 'light',   audio: 'light.mp3'   },
+            { id: 'sink',    word: 'sink',    audio: 'sink.mp3'    },
+            { id: 'floor',   word: 'floor',   audio: 'floor.mp3'   },
+            { id: 'window',  word: 'window',  audio: 'window.mp3'  }
         ];
 
         const PRAISE_FILES = ['good job.mp3', 'great.mp3', 'way to go.mp3'];
 
         const state = {
+            currentStage: 1,
             queue: [],
             currentTarget: null,
             foundWords: new Set(),
@@ -348,369 +405,7 @@
         };
 
         /**
-         * 開始或重新開始遊戲 (老師觸控選題模式)
-         */
-        function startGame() {
-            state.foundWords.clear();
-            state.attempts = 0;
-            state.correctCount = 0;
-            state.isProcessing = false;
-            state.currentTarget = null;
-
-            // 隱藏遮罩
-            document.getElementById('startOverlay').classList.add('hidden');
-            document.getElementById('victoryOverlay').classList.add('hidden');
-
-            // 清除畫面上的標籤與特效
-            document.getElementById('labelsLayer').innerHTML = '';
-            document.querySelectorAll('.hotspot').forEach(el => {
-                el.classList.remove('hotspot-found', 'hint-active');
-            });
-            stopFloorHint();
-            const floorCanvas = document.getElementById('floorHighlightCanvas');
-            if (floorCanvas) {
-                floorCanvas.style.opacity = '0';
-            }
-
-            const gameBoard = document.getElementById('gameBoard');
-            const promptPanel = document.getElementById('promptPanel');
-
-            gameBoard.classList.add('game-active');
-            promptPanel.classList.remove('hidden');
-            document.getElementById('targetWordDisplay').textContent = 'Tap a word below';
-            
-            state.queue = [...VOCABULARY];
-            renderStars();
-            renderWordCards();
-        }
-
-        /**
-         * 老師手動指定目前題目單字並播放語音
-         */
-        function selectTargetWord(wordId) {
-            const vocabObj = VOCABULARY.find(v => v.id === wordId);
-            if (!vocabObj) return;
-
-            // 若尚未按下 Start，自動進入遊戲狀態
-            if (!document.getElementById('startOverlay').classList.contains('hidden')) {
-                document.getElementById('startOverlay').classList.add('hidden');
-                document.getElementById('gameBoard').classList.add('game-active');
-                document.getElementById('promptPanel').classList.remove('hidden');
-            }
-            document.getElementById('victoryOverlay').classList.add('hidden');
-
-            // 清除舊提示
-            document.querySelectorAll('.hotspot').forEach(el => el.classList.remove('hint-active'));
-            stopFloorHint();
-
-            state.isProcessing = false;
-            state.currentTarget = vocabObj;
-            document.getElementById('targetWordDisplay').textContent = vocabObj.word;
-
-            renderWordCards();
-            highlightBottomCard(wordId);
-            speakCurrentWord();
-        }
-
-        /**
-         * 學生答對後，清除當前選定狀態並等待老師點選下一個下方單字 (若全數完成則顯示勝利)
-         */
-        function nextQuestion() {
-            document.querySelectorAll('.hotspot').forEach(el => el.classList.remove('hint-active'));
-            stopFloorHint();
-
-            if (state.foundWords.size >= VOCABULARY.length) {
-                handleVictory();
-                return;
-            }
-
-            state.currentTarget = null;
-            document.getElementById('targetWordDisplay').textContent = 'Tap next word';
-            renderWordCards();
-        }
-
-        /**
-         * 統一取得滑鼠或電子白板觸控事件的座標
-         */
-        function getEventCoords(e) {
-            if (e.changedTouches && e.changedTouches.length > 0) {
-                return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
-            }
-            return { clientX: e.clientX, clientY: e.clientY };
-        }
-
-        /**
-         * 綁定所有熱區與地板顏色識別觸控/點擊事件 (支援電子白板多點與即時觸屏)
-         */
-        function setupHotspotListeners() {
-            // 1. 綁定上方/牆面熱區 (ceiling, light, door, window, sink)
-            document.querySelectorAll('.hotspot').forEach(spot => {
-                const onSpotInteract = (e) => {
-                    if (e.type === 'touchend') e.preventDefault();
-                    e.stopPropagation();
-                    const wordId = spot.getAttribute('data-word');
-                    handleSpotClick(wordId, spot, e);
-                };
-                spot.addEventListener('click', onSpotInteract);
-                spot.addEventListener('touchend', onSpotInteract, { passive: false });
-            });
-
-            // 2. 觸控/點擊背景與顏色識別判定 (包含 floor 顏色識別與空白處誤觸)
-            const gameBoard = document.getElementById('gameBoard');
-            const onBoardInteract = (e) => {
-                if (!state.currentTarget || state.isProcessing) return;
-                if (e.target.closest('#startOverlay') || e.target.closest('#victoryOverlay')) return;
-                if (e.target.classList.contains('hotspot')) return;
-                if (e.type === 'touchend') e.preventDefault();
-
-                const { clientX, clientY } = getEventCoords(e);
-
-                // 利用顏色識別檢查是否點到了薄荷綠地板
-                if (checkFloorAtPoint(clientX, clientY)) {
-                    const floorCanvas = document.getElementById('floorHighlightCanvas');
-                    handleSpotClick('floor', floorCanvas, e);
-                    return;
-                }
-
-                state.attempts++;
-                triggerMatchEffect(false, clientX, clientY);
-                playAudioSequence(['error.mp3', 'try again.mp3']);
-            };
-
-            gameBoard.addEventListener('click', onBoardInteract);
-            gameBoard.addEventListener('touchend', onBoardInteract, { passive: false });
-
-            // 3. 滑鼠移動到地板區域時顯示可點擊游標 (pointer)
-            gameBoard.addEventListener('mousemove', (e) => {
-                if (!state.currentTarget || state.isProcessing) {
-                    gameBoard.style.cursor = 'default';
-                    return;
-                }
-                if (e.target.classList.contains('hotspot') || checkFloorAtPoint(e.clientX, e.clientY)) {
-                    gameBoard.style.cursor = 'pointer';
-                } else {
-                    gameBoard.style.cursor = 'default';
-                }
-            });
-        }
-
-        /**
-         * 停止地板閃爍提示動畫
-         */
-        function stopFloorHint() {
-            if (state.floorHintInterval) {
-                clearInterval(state.floorHintInterval);
-                state.floorHintInterval = null;
-            }
-            const floorCanvas = document.getElementById('floorHighlightCanvas');
-            if (floorCanvas && !state.foundWords.has('floor')) {
-                floorCanvas.style.opacity = '0';
-            }
-        }
-
-        /**
-         * 觸發配對成功或失敗的視覺特效 (光暈、波紋、粒子/震動)
-         */
-        function triggerMatchEffect(isSuccess, clientX, clientY) {
-            const board = document.getElementById('gameBoard');
-            const rect = board.getBoundingClientRect();
-            const relX = clientX - rect.left;
-            const relY = clientY - rect.top;
-
-            // 1. 畫布外框發光或震動特效
-            board.classList.remove('board-success-glow', 'board-error-flash', 'shake-error');
-            void board.offsetWidth; // 強制重繪以重新觸發動畫
-            board.classList.add(isSuccess ? 'board-success-glow' : 'board-error-flash');
-
-            // 2. 點擊處擴散波紋光圈
-            const ring = document.createElement('div');
-            ring.className = `click-burst-ring border-4 ${isSuccess ? 'border-emerald-400 bg-emerald-300/30' : 'border-rose-500 bg-rose-400/30'}`;
-            ring.style.left = `${relX}px`;
-            ring.style.top = `${relY}px`;
-            board.appendChild(ring);
-            setTimeout(() => ring.remove(), 700);
-
-            // 3. 若成功，在點擊位置噴發迷你星星彩帶
-            if (isSuccess && typeof confetti === 'function') {
-                const originX = clientX / window.innerWidth;
-                const originY = clientY / window.innerHeight;
-                confetti({
-                    particleCount: 28,
-                    spread: 55,
-                    startVelocity: 22,
-                    scalar: 0.85,
-                    origin: { x: originX, y: originY }
-                });
-            }
-        }
-
-        /**
-         * 處理熱區被觸控/點擊的邏輯
-         */
-        function handleSpotClick(wordId, element, event) {
-            const vocabObj = VOCABULARY.find(v => v.id === wordId);
-            if (!vocabObj) return;
-
-            if (state.isProcessing || !state.currentTarget) return;
-            state.attempts++;
-
-            const { clientX, clientY } = getEventCoords(event);
-
-            if (wordId === state.currentTarget.id) {
-                // 答對了！
-                state.isProcessing = true;
-                if (!state.foundWords.has(wordId)) {
-                    state.correctCount++;
-                    state.foundWords.add(wordId);
-                    addPermanentLabel(vocabObj);
-                }
-                state.queue = state.queue.filter(item => item.id !== wordId);
-
-                const randomPraise = PRAISE_FILES[Math.floor(Math.random() * PRAISE_FILES.length)];
-
-                if (wordId === 'floor') {
-                    stopFloorHint();
-                    if (element) element.style.opacity = '0.85';
-                } else if (element) {
-                    element.classList.remove('hint-active');
-                    element.classList.add('hotspot-found');
-                }
-
-                triggerMatchEffect(true, clientX, clientY);
-                renderStars();
-                renderWordCards();
-
-                // 依序播放 correct.mp3 -> 隨機鼓勵音效，播放完畢後等待老師點選下一個單字
-                playAudioSequence(['correct.mp3', randomPraise], () => {
-                    setTimeout(() => {
-                        state.isProcessing = false;
-                        nextQuestion();
-                    }, 350);
-                });
-
-            } else {
-                // 答錯了：依序播放 error.mp3 -> try again.mp3
-                triggerMatchEffect(false, clientX, clientY);
-                playAudioSequence(['error.mp3', 'try again.mp3']);
-            }
-        }
-
-        /**
-         * 提示功能：讓正確目標區域閃爍發光並再唸一次
-         */
-        function triggerHint() {
-            if (!state.currentTarget) return;
-            if (state.currentTarget.id === 'floor') {
-                const floorCanvas = document.getElementById('floorHighlightCanvas');
-                if (floorCanvas) {
-                    stopFloorHint();
-                    let visible = true;
-                    floorCanvas.style.opacity = '0.95';
-                    state.floorHintInterval = setInterval(() => {
-                        visible = !visible;
-                        floorCanvas.style.opacity = visible ? '0.95' : '0.2';
-                    }, 550);
-                }
-                speakCurrentWord();
-                return;
-            }
-
-            const targetSpot = document.querySelector(`.hotspot[data-word="${state.currentTarget.id}"]`);
-            if (targetSpot) {
-                targetSpot.classList.add('hint-active');
-                speakCurrentWord();
-            }
-        }
-
-        /**
-         * 在已答對的物品上留下永久單字標籤
-         */
-        function addPermanentLabel(vocabObj) {
-            const layer = document.getElementById('labelsLayer');
-            const tag = document.createElement('div');
-            tag.className = 'absolute transform -translate-x-1/2 -translate-y-1/2 bg-white/95 text-emerald-700 border-2 border-emerald-500 px-2.5 py-0.5 rounded-full font-bold text-xs sm:text-sm shadow-md flex items-center gap-1 transition-all';
-            tag.style.left = `${vocabObj.labelX}%`;
-            tag.style.top = `${vocabObj.labelY}%`;
-            tag.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i> <span>${vocabObj.word}</span>`;
-            layer.appendChild(tag);
-        }
-
-        /**
-         * 更新頂部星星進度條
-         */
-        function renderStars() {
-            const container = document.getElementById('starsContainer');
-            container.innerHTML = '';
-            VOCABULARY.forEach((item, index) => {
-                const isEarned = index < state.foundWords.size;
-                const star = document.createElement('i');
-                star.className = `fa-solid fa-star text-sm sm:text-base transition-all duration-300 ${isEarned ? 'text-amber-400 scale-110 drop-shadow-sm' : 'text-slate-300'}`;
-                container.appendChild(star);
-            });
-        }
-
-        /**
-         * 渲染底部老師選題單字卡 (加大觸控高度與感應，方便電子白板點擊)
-         */
-        function renderWordCards() {
-            const bar = document.getElementById('wordCardsBar');
-            bar.innerHTML = '';
-
-            VOCABULARY.forEach(item => {
-                const isFound = state.foundWords.has(item.id);
-                const isCurrent = state.currentTarget && state.currentTarget.id === item.id;
-                const card = document.createElement('button');
-                card.id = `card-${item.id}`;
-                card.onclick = () => selectTargetWord(item.id);
-
-                let styleClass = 'bg-white border-slate-200 text-slate-700 hover:border-sky-400';
-                if (isCurrent) {
-                    styleClass = 'bg-sky-100 border-sky-500 text-sky-900 ring-2 ring-sky-400';
-                } else if (isFound) {
-                    styleClass = 'bg-emerald-50 border-emerald-400 text-emerald-800';
-                }
-
-                card.className = `btn-3d rounded-xl py-1.5 sm:py-2 px-2.5 text-center border-2 flex items-center justify-center transition-all ${styleClass}`;
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-1.5 font-bold text-sm sm:text-base">
-                        <i class="fa-solid ${isFound ? 'fa-check-circle text-emerald-500' : (isCurrent ? 'fa-volume-high text-sky-600 animate-pulse' : 'fa-volume-low text-sky-500')} text-xs sm:text-sm"></i>
-                        <span>${item.word}</span>
-                    </div>
-                `;
-                bar.appendChild(card);
-            });
-        }
-
-        function highlightBottomCard(wordId) {
-            const card = document.getElementById(`card-${wordId}`);
-            if (!card) return;
-            card.classList.add('ring-4', 'ring-amber-300');
-            setTimeout(() => card.classList.remove('ring-4', 'ring-amber-300'), 600);
-        }
-
-        /**
-         * 全部過關勝利畫面與彩帶特效
-         */
-        function handleVictory() {
-            playSoundEffect('win');
-
-            const accuracy = state.attempts > 0 ? Math.round((state.correctCount / state.attempts) * 100) : 100;
-            document.getElementById('accuracyDisplay').textContent = `${accuracy}%`;
-            document.getElementById('victoryOverlay').classList.remove('hidden');
-
-            // 發射慶祝彩帶
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-        }
-
-        /**
-         * 初始化離屏 Canvas 像素顏色識別系統，精準偵測薄荷綠地板區域
+         * 初始化離屏 Canvas 像素顏色識別系統，動態採樣並偵測各關卡的地板區域
          */
         function initFloorColorDetection() {
             const img = document.getElementById('classroomImg');
@@ -727,27 +422,52 @@
                     const offCtx = offCanvas.getContext('2d');
                     offCtx.drawImage(img, 0, 0, w, h);
 
-                    const imgData = offCtx.getImageData(0, 0, w, h).data;
-                    const mask = new Uint8Array(w * h);
+                    // 動態採樣底部開放地板區塊取得該關卡實際地板主色調
+                    const sampleXStart = state.currentStage === 2 ? 0.04 : 0.42;
+                    const sampleXEnd   = state.currentStage === 2 ? 0.24 : 0.62;
+                    const sampleYStart = state.currentStage === 2 ? 0.85 : 0.86;
+                    const sampleYEnd   = state.currentStage === 2 ? 0.96 : 0.96;
 
-                    const hCtx = highlightCanvas.getContext('2d');
-                    const hImgData = hCtx.createImageData(w, h);
-                    const outData = hImgData.data;
+                    let sumR = 0, sumG = 0, sumB = 0, sampleCount = 0;
+                    for (let sy = Math.floor(h * sampleYStart); sy < Math.floor(h * sampleYEnd); sy++) {
+                        for (let sx = Math.floor(w * sampleXStart); sx < Math.floor(w * sampleXEnd); sx++) {
+                            const sIdx = (sy * w + sx) * 4;
+                            sumR += imgData[sIdx];
+                            sumG += imgData[sIdx + 1];
+                            sumB += imgData[sIdx + 2];
+                            sampleCount++;
+                        }
+                    }
+
+                    const baseR = sampleCount > 0 ? sumR / sampleCount : 185;
+                    const baseG = sampleCount > 0 ? sumG / sampleCount : 215;
+                    const baseB = sampleCount > 0 ? sumB / sampleCount : 195;
+
+                    let detectedPixels = 0;
+                    const minFloorY = state.currentStage === 2 ? h * 0.72 : h * 0.49;
 
                     for (let y = 0; y < h; y++) {
-                        // 地板位於畫面下半部 (y > 49% 高度)
-                        if (y < h * 0.49) continue;
+                        if (y < minFloorY) continue;
 
                         for (let x = 0; x < w; x++) {
+                            // Stage 2 右下角為流理台木櫃 (x > 71%, y > 72%) 與爸爸褲子 (x > 91%)，予以排除
+                            if (state.currentStage === 2 && x > w * 0.71) continue;
+
                             const idx = (y * w + x) * 4;
                             const r = imgData[idx];
                             const g = imgData[idx + 1];
                             const b = imgData[idx + 2];
 
-                            // 薄荷綠地板特徵：亮度高、綠色通道明顯高於紅色 (排除橘色圓桌、牆面與人物深色衣物)
-                            const isMintFloor = (g >= 180 && r >= 150 && b >= 165 && (g - r) >= 8 && (r - b) < 25);
-                            if (isMintFloor) {
+                            const colorDist = Math.sqrt(
+                                Math.pow(r - baseR, 2) +
+                                Math.pow(g - baseG, 2) +
+                                Math.pow(b - baseB, 2)
+                            );
+                            const isOrangeDesk = state.currentStage === 1 && (r - b) > 45 && r > 200;
+
+                            if (colorDist < 55 && !isOrangeDesk) {
                                 mask[y * w + x] = 1;
+                                detectedPixels++;
                                 outData[idx] = 34;      // R (Emerald-500)
                                 outData[idx + 1] = 197; // G
                                 outData[idx + 2] = 94;  // B
@@ -756,8 +476,14 @@
                         }
                     }
 
-                    state.floorMask = mask;
-                    hCtx.putImageData(hImgData, 0, 0);
+                    // 若偵測到的有效地板像素過少，自動切換為幾何區域備援
+                    if (detectedPixels < (w * h * 0.05)) {
+                        state.floorMask = null;
+                        hCtx.clearRect(0, 0, w, h);
+                    } else {
+                        state.floorMask = mask;
+                        hCtx.putImageData(hImgData, 0, 0);
+                    }
                 } catch (err) {
                     // 若跨域圖片讀取像素受限，啟用幾何高度備援判定
                     state.floorMask = null;
@@ -766,9 +492,8 @@
 
             if (img.complete && img.naturalWidth > 0) {
                 processImage();
-            } else {
-                img.addEventListener('load', processImage);
             }
+            img.onload = processImage;
         }
 
         /**
@@ -786,6 +511,9 @@
 
             // 若無像素遮罩資料，使用下半部安全區域備援
             if (!state.floorMask) {
+                if (state.currentStage === 2) {
+                    return relY >= 0.75 && relX <= 0.71;
+                }
                 return relY >= 0.54;
             }
 
@@ -899,7 +627,388 @@
         window.onload = init;
 
         /**
-         * 使用 Web Audio API 產生清脆的答對、答錯與過關音效
+         * 切換關卡 (Stage 1 / Stage 2)
+         */
+        function switchStage(stageId) {
+            if (!STAGES[stageId]) return;
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            state.currentStage = stageId;
+
+            const stageConfig = STAGES[stageId];
+            const img = document.getElementById('classroomImg');
+            if (img) {
+                img.src = stageConfig.bgUrl;
+            }
+
+            // 更新關卡按鈕樣式
+            const btn1 = document.getElementById('stageBtn1');
+            const btn2 = document.getElementById('stageBtn2');
+            if (btn1 && btn2) {
+                if (stageId === 1) {
+                    btn1.className = 'px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all bg-amber-500 text-white shadow-xs';
+                    btn2.className = 'px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all text-amber-800 hover:bg-amber-200/60';
+                } else {
+                    btn2.className = 'px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all bg-amber-500 text-white shadow-xs';
+                    btn1.className = 'px-2.5 py-1 rounded-lg font-bold text-xs sm:text-sm transition-all text-amber-800 hover:bg-amber-200/60';
+                }
+            }
+
+            // 套用該關卡的熱區座標
+            document.querySelectorAll('.hotspot').forEach(el => {
+                const word = el.dataset.word;
+                const pos = stageConfig.hotspots[word];
+                if (pos) {
+                    el.style.top = pos.top;
+                    el.style.left = pos.left;
+                    el.style.width = pos.width;
+                    el.style.height = pos.height;
+                    el.style.borderRadius = pos.borderRadius || '12px';
+                }
+            });
+
+            startGame();
+        }
+
+        /**
+         * 開始或重新開始目前關卡
+         */
+        function startGame() {
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            state.foundWords.clear();
+            state.attempts = 0;
+            state.correctCount = 0;
+            state.isProcessing = false;
+            state.currentTarget = null;
+
+            // 隱藏遮罩層
+            const startOverlay = document.getElementById('startOverlay');
+            const victoryOverlay = document.getElementById('victoryOverlay');
+            if (startOverlay) startOverlay.classList.add('hidden');
+            if (victoryOverlay) victoryOverlay.classList.add('hidden');
+
+            // 顯示上方提示面板並啟用互動狀態
+            const promptPanel = document.getElementById('promptPanel');
+            if (promptPanel) promptPanel.classList.remove('hidden');
+
+            const board = document.getElementById('gameBoard');
+            if (board) board.classList.add('game-active');
+
+            // 清除舊標籤與熱區狀態
+            const labelsLayer = document.getElementById('labelsLayer');
+            if (labelsLayer) labelsLayer.innerHTML = '';
+
+            document.querySelectorAll('.hotspot').forEach(el => {
+                el.classList.remove('hotspot-found', 'hint-active');
+            });
+
+            const floorCanvas = document.getElementById('floorHighlightCanvas');
+            if (floorCanvas) floorCanvas.style.opacity = '0';
+
+            renderStars();
+            renderWordCards();
+
+            // 保持初始提示狀態，等待老師點選下方單字卡後再播放發音
+            const display = document.getElementById('targetWordDisplay');
+            if (display) {
+                display.textContent = 'Select a word';
+            }
+        }
+
+        /**
+         * 老師點選下方單字卡設定目前題目
+         */
+        function selectWordByTeacher(wordId) {
+            if (state.isProcessing) return;
+            const vocab = VOCABULARY.find(v => v.id === wordId);
+            if (!vocab) return;
+
+            state.currentTarget = vocab;
+
+            const display = document.getElementById('targetWordDisplay');
+            if (display) {
+                display.textContent = vocab.word;
+            }
+
+            renderWordCards();
+            speakCurrentWord();
+        }
+
+        /**
+         * 渲染頂部 6 顆進度星星
+         */
+        function renderStars() {
+            const container = document.getElementById('starsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            VOCABULARY.forEach(item => {
+                const isFound = state.foundWords.has(item.id);
+                const star = document.createElement('i');
+                star.className = isFound
+                    ? 'fa-solid fa-star text-amber-400 text-sm sm:text-base drop-shadow-xs transition-transform scale-110'
+                    : 'fa-solid fa-star text-slate-300 text-sm sm:text-base transition-transform';
+                container.appendChild(star);
+            });
+        }
+
+        /**
+         * 渲染老師操作用單字卡片列
+         */
+        function renderWordCards() {
+            const bar = document.getElementById('wordCardsBar');
+            if (!bar) return;
+            bar.innerHTML = '';
+
+            VOCABULARY.forEach(item => {
+                const isSelected = state.currentTarget && state.currentTarget.id === item.id;
+                const isFound = state.foundWords.has(item.id);
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+
+                let baseClasses = 'btn-3d rounded-xl px-2 py-1.5 sm:py-2 font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 border-2 transition-all ';
+                if (isSelected) {
+                    baseClasses += 'bg-sky-500 text-white border-sky-600 scale-[1.02]';
+                } else if (isFound) {
+                    baseClasses += 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100';
+                } else {
+                    baseClasses += 'bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:bg-sky-50';
+                }
+                btn.className = baseClasses;
+
+                const iconClass = isFound ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-volume-high';
+                const activeIconClass = isSelected ? 'fa-solid fa-volume-high text-white' : iconClass;
+
+                btn.innerHTML = `<i class="${activeIconClass} text-xs sm:text-sm"></i><span>${item.word}</span>`;
+
+                const handleSelect = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectWordByTeacher(item.id);
+                };
+
+                btn.addEventListener('click', handleSelect);
+                btn.addEventListener('touchend', handleSelect, { passive: false });
+                bar.appendChild(btn);
+            });
+        }
+
+        /**
+         * 設定電子白板觸控與滑鼠點擊監聽
+         */
+        function setupHotspotListeners() {
+            const board = document.getElementById('gameBoard');
+            if (!board) return;
+
+            let lastTouchTime = 0;
+
+            const handleInput = (clientX, clientY, targetEl) => {
+                if (!state.currentTarget || state.isProcessing) return;
+
+                const hotspotEl = targetEl.closest('.hotspot');
+                if (hotspotEl) {
+                    const clickedWord = hotspotEl.dataset.word;
+                    if (clickedWord === state.currentTarget.id) {
+                        handleCorrectAnswer(state.currentTarget, clientX, clientY, hotspotEl);
+                    } else {
+                        handleWrongAnswer(clientX, clientY);
+                    }
+                    return;
+                }
+
+                // 檢查是否點到地板區域
+                if (state.currentTarget.id === 'floor' && checkFloorAtPoint(clientX, clientY)) {
+                    handleCorrectAnswer(state.currentTarget, clientX, clientY, null);
+                } else {
+                    handleWrongAnswer(clientX, clientY);
+                }
+            };
+
+            board.addEventListener('touchend', (e) => {
+                if (e.target.closest('#startOverlay') || e.target.closest('#victoryOverlay')) return;
+                if (e.changedTouches && e.changedTouches.length > 0) {
+                    lastTouchTime = Date.now();
+                    e.preventDefault();
+                    const touch = e.changedTouches[0];
+                    handleInput(touch.clientX, touch.clientY, e.target);
+                }
+            }, { passive: false });
+
+            board.addEventListener('click', (e) => {
+                if (Date.now() - lastTouchTime < 450) return;
+                if (e.target.closest('#startOverlay') || e.target.closest('#victoryOverlay')) return;
+                handleInput(e.clientX, e.clientY, e.target);
+            });
+        }
+
+        /**
+         * 處理答對時的視覺特效、音效與進度更新
+         */
+        function handleCorrectAnswer(target, clientX, clientY, hotspotEl) {
+            state.isProcessing = true;
+            state.attempts++;
+            state.correctCount++;
+
+            const isFirstTimeFound = !state.foundWords.has(target.id);
+            state.foundWords.add(target.id);
+
+            const board = document.getElementById('gameBoard');
+            if (board) {
+                board.classList.remove('board-success-glow', 'board-error-flash');
+                void board.offsetWidth;
+                board.classList.add('board-success-glow');
+            }
+
+            triggerClickBurst(clientX, clientY, true);
+
+            if (hotspotEl) {
+                hotspotEl.classList.add('hotspot-found');
+            } else if (target.id === 'floor') {
+                const floorCanvas = document.getElementById('floorHighlightCanvas');
+                if (floorCanvas) {
+                    floorCanvas.style.opacity = '1';
+                    setTimeout(() => { floorCanvas.style.opacity = '0'; }, 900);
+                }
+            }
+
+            if (isFirstTimeFound) {
+                addPermanentLabel(target);
+            }
+
+            renderStars();
+            renderWordCards();
+
+            // 觸發迷你彩帶慶祝
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 28,
+                    spread: 55,
+                    origin: {
+                        x: clientX / window.innerWidth,
+                        y: clientY / window.innerHeight
+                    }
+                });
+            }
+
+            const randomPraise = PRAISE_FILES[Math.floor(Math.random() * PRAISE_FILES.length)];
+            playAudioSequence(['correct.mp3', randomPraise], () => {
+                state.isProcessing = false;
+                if (state.foundWords.size === VOCABULARY.length) {
+                    showVictory();
+                } else {
+                    // 答對後清除目前選題狀態，等待老師親自點選下一個要考的單字卡
+                    state.currentTarget = null;
+                    const display = document.getElementById('targetWordDisplay');
+                    if (display) {
+                        display.textContent = 'Select a word';
+                    }
+                    renderWordCards();
+                }
+            });
+        }
+
+        /**
+         * 處理答錯時的搖晃特效與雙段提示音效
+         */
+        function handleWrongAnswer(clientX, clientY) {
+            state.isProcessing = true;
+            state.attempts++;
+
+            const board = document.getElementById('gameBoard');
+            if (board) {
+                board.classList.remove('board-error-flash', 'board-success-glow');
+                void board.offsetWidth;
+                board.classList.add('board-error-flash');
+            }
+
+            triggerClickBurst(clientX, clientY, false);
+
+            playAudioSequence(['error.mp3', 'try again.mp3'], () => {
+                state.isProcessing = false;
+            });
+        }
+
+        /**
+         * 在已找到的物件上留下英文單字標籤
+         */
+        function addPermanentLabel(target) {
+            const labelsLayer = document.getElementById('labelsLayer');
+            const stageConfig = STAGES[state.currentStage] || STAGES[1];
+            const coords = stageConfig.labels[target.id];
+            if (!labelsLayer || !coords) return;
+
+            const badge = document.createElement('div');
+            badge.className = 'absolute -translate-x-1/2 -translate-y-1/2 bg-emerald-500/95 text-white font-bold text-xs sm:text-sm px-2.5 py-0.5 rounded-full shadow-md border-2 border-white flex items-center gap-1';
+            badge.style.left = coords.labelX + '%';
+            badge.style.top = coords.labelY + '%';
+            badge.innerHTML = `<i class="fa-solid fa-check text-[10px]"></i><span>${target.word}</span>`;
+            labelsLayer.appendChild(badge);
+        }
+
+        /**
+         * 點擊位置波紋特效
+         */
+        function triggerClickBurst(clientX, clientY, isSuccess) {
+            const board = document.getElementById('gameBoard');
+            if (!board) return;
+
+            const rect = board.getBoundingClientRect();
+            const ring = document.createElement('div');
+            ring.className = 'click-burst-ring';
+            ring.style.left = (clientX - rect.left) + 'px';
+            ring.style.top = (clientY - rect.top) + 'px';
+            ring.style.border = isSuccess ? '4px solid #22c55e' : '4px solid #f43f5e';
+            ring.style.backgroundColor = isSuccess ? 'rgba(34, 197, 94, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+
+            board.appendChild(ring);
+            setTimeout(() => ring.remove(), 700);
+        }
+
+        /**
+         * 顯示過關結算畫面
+         */
+        function showVictory() {
+            playSoundEffect('win');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+            }
+
+            const victoryOverlay = document.getElementById('victoryOverlay');
+            const victoryTitle = document.getElementById('victoryTitle');
+            const accuracyDisplay = document.getElementById('accuracyDisplay');
+            const nextStageBtn = document.getElementById('nextStageBtn');
+
+            const accuracy = state.attempts > 0
+                ? Math.round((state.correctCount / state.attempts) * 100)
+                : 100;
+
+            if (victoryTitle) victoryTitle.textContent = `Stage ${state.currentStage} Complete!`;
+            if (accuracyDisplay) accuracyDisplay.textContent = `${accuracy}%`;
+            if (nextStageBtn) {
+                if (state.currentStage === 1) {
+                    nextStageBtn.classList.remove('hidden');
+                } else {
+                    nextStageBtn.classList.add('hidden');
+                }
+            }
+
+            if (victoryOverlay) victoryOverlay.classList.remove('hidden');
+        }
+
+        /**
+         * Web Audio API 備援音效產生器 (答對 / 答錯 / 勝利音效)
          */
         function playSoundEffect(type) {
             try {
@@ -915,51 +1024,46 @@
                 const now = ctx.currentTime;
 
                 if (type === 'correct') {
-                    // 清脆雙音上升 (Do -> Mi)
-                    const notes = [523.25, 659.25];
-                    notes.forEach((freq, idx) => {
+                    [523.25, 659.25, 783.99].forEach((freq, i) => {
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
                         osc.type = 'sine';
-                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-                        gain.gain.setValueAtTime(0.2, now + idx * 0.1);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.25);
+                        osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                        gain.gain.setValueAtTime(0.15, now + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
                         osc.connect(gain);
                         gain.connect(ctx.destination);
-                        osc.start(now + idx * 0.1);
-                        osc.stop(now + idx * 0.1 + 0.25);
+                        osc.start(now + i * 0.08);
+                        osc.stop(now + i * 0.08 + 0.26);
                     });
                 } else if (type === 'wrong') {
-                    // 溫和低音提示
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.linearRampToValueAtTime(175, now + 0.25);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(190, now);
+                    osc.frequency.linearRampToValueAtTime(140, now + 0.25);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
                     osc.start(now);
-                    osc.stop(now + 0.25);
+                    osc.stop(now + 0.27);
                 } else if (type === 'win') {
-                    // 勝利和弦琶音 (Do -> Mi -> Sol -> High Do)
-                    const notes = [523.25, 659.25, 783.99, 1046.50];
-                    notes.forEach((freq, idx) => {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(freq, now + idx * 0.11);
-                        gain.gain.setValueAtTime(0.22, now + idx * 0.11);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.11 + 0.4);
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + i * 0.12);
+                        gain.gain.setValueAtTime(0.18, now + i * 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.45);
                         osc.connect(gain);
                         gain.connect(ctx.destination);
-                        osc.start(now + idx * 0.11);
-                        osc.stop(now + idx * 0.11 + 0.4);
+                        osc.start(now + i * 0.12);
+                        osc.stop(now + i * 0.12 + 0.46);
                     });
                 }
             } catch (e) {
-                // 忽略瀏覽器音訊限制錯誤
+                // 忽略瀏覽器音訊限制
             }
         }
     </script>
