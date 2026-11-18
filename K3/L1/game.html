@@ -1,19 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listen and Point: Classroom Fun!</title>
-    <!-- 引入 Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Google Fonts: Fredoka (童趣圓潤英文字體) -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- 引入 FontAwesome 圖示庫 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 引入 Canvas Confetti 慶祝彩帶效果 -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <!-- 大陸境內穩定 BootCDN 鏡像套件 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- 透過大陸可用節點載入 Quicksand SemiBold 600 字體（避免被阻斷的 Google Fonts） -->
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fontsource/quicksand@5.0.16/600.css">
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fontsource/quicksand@5.0.16/700.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
     <script>
+        /**
+         * 騰訊雲上海 COS 媒體資源路徑設定（中國大陸境內高速直連）
+         */
+        const MEDIA_BASE_URL = 'https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K3/L1-2/';
+
         /**
          * 圖片備援機制：定義於 <head> 以確保 <img> 載入失敗觸發 onerror 時函式已就緒
          */
@@ -70,14 +74,16 @@
                 <text x="860" y="50" font-size="22">🦋</text>
                 <text x="610" y="210" font-size="20">🦋</text>
                 <text x="245" y="185" font-size="22">🦋</text>
-            </svg>`;
+            <\/svg>`;
             imgElement.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgScene);
         }
     </script>
 
     <style>
         body {
-            font-family: 'Fredoka', sans-serif;
+            /* 優先使用 Quicksand SemiBold 600，搭配本地圓體與無襯線字體備援 */
+            font-family: 'Quicksand', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-weight: 600;
             background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #E0F2FE 100%);
             user-select: none;
             -webkit-user-select: none;
@@ -184,16 +190,6 @@
             animation: rippleBurst 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* 漂浮蝴蝶動畫 (增加場景生動感) */
-        @keyframes floatButterfly {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-6px) rotate(4deg); }
-        }
-
-        .butterfly-deco {
-            animation: floatButterfly 3s ease-in-out infinite;
-        }
-
         /* 3D 遊戲按鈕樣式 */
         .btn-3d {
             transition: all 0.1s ease;
@@ -206,7 +202,7 @@
         }
     </style>
 </head>
-<body class="h-[100dvh] overflow-hidden flex flex-col items-center justify-center p-2 sm:p-3 gap-2">
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col items-center justify-between p-2 sm:p-3 gap-2">
 
     <!-- 頂部控制與選題橫幅 (置於畫面上方，維持單頁免捲動) -->
     <header class="w-full max-w-6xl shrink-0 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border-2 border-amber-200 px-3 py-2 flex flex-col gap-1.5">
@@ -260,7 +256,7 @@
         <div id="gameBoard" class="relative h-full max-h-full w-auto max-w-full aspect-[1024/647] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-white overflow-hidden select-none">
             <!-- 教室背景插畫 -->
             <img id="classroomImg"
-                 src="https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background-1.png"
+                 src="https://mks-video-1414086886.cos.ap-shanghai.myqcloud.com/K3/L1-2/background-1.png"
                  alt="Classroom Scene"
                  crossorigin="anonymous"
                  onerror="handleImageFallback(this)"
@@ -286,7 +282,7 @@
                 <!-- 5. Sink (洗手台) -->
                 <div class="hotspot" data-word="sink" style="top: 38.2%; left: 84.8%; width: 8.6%; height: 8.2%;" title="Sink"></div>
                 
-                <!-- Floor 改由下方的 Canvas 像素顏色識別系統精準判定，確保凡是點到薄荷綠地板都有效 -->
+                <!-- Floor 由 Canvas 像素顏色識別系統精準判定 -->
             </div>
 
             <!-- 已找到單字的常駐小標籤層 -->
@@ -332,13 +328,13 @@
     </main>
 
     <script>
-        const AUDIO_BASE_URL = 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/';
+        const AUDIO_BASE_URL = MEDIA_BASE_URL;
 
         const STAGES = {
             1: {
                 id: 1,
                 name: 'Stage 1',
-                bgUrl: 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background-1.png',
+                bgUrl: MEDIA_BASE_URL + 'background-1.png',
                 hotspots: {
                     ceiling: { top: '0%', left: '0%', width: '100%', height: '7.2%', borderRadius: '12px' },
                     light:   { top: '5.5%', left: '67%', width: '7.2%', height: '10.5%', borderRadius: '50%' },
@@ -358,7 +354,7 @@
             2: {
                 id: 2,
                 name: 'Stage 2',
-                bgUrl: 'https://raw.githubusercontent.com/JOUCHUCHEN/MKS/main/K3/L1/background-2.png',
+                bgUrl: MEDIA_BASE_URL + 'background-2.png',
                 hotspots: {
                     ceiling: { top: '0%', left: '0%', width: '100%', height: '8.5%', borderRadius: '12px' },
                     light:   { top: '1.2%', left: '44.5%', width: '11%', height: '9.5%', borderRadius: '50%' },
@@ -400,8 +396,7 @@
             currentAudio: null,
             floorMask: null,
             maskWidth: 1024,
-            maskHeight: 647,
-            floorHintInterval: null
+            maskHeight: 647
         };
 
         /**
@@ -421,6 +416,12 @@
                     offCanvas.height = h;
                     const offCtx = offCanvas.getContext('2d');
                     offCtx.drawImage(img, 0, 0, w, h);
+
+                    const imgData = offCtx.getImageData(0, 0, w, h).data;
+                    const hCtx = highlightCanvas.getContext('2d');
+                    const hImgData = hCtx.createImageData(w, h);
+                    const outData = hImgData.data;
+                    const mask = new Uint8Array(w * h);
 
                     // 動態採樣底部開放地板區塊取得該關卡實際地板主色調
                     const sampleXStart = state.currentStage === 2 ? 0.04 : 0.42;
@@ -450,7 +451,7 @@
                         if (y < minFloorY) continue;
 
                         for (let x = 0; x < w; x++) {
-                            // Stage 2 右下角為流理台木櫃 (x > 71%, y > 72%) 與爸爸褲子 (x > 91%)，予以排除
+                            // Stage 2 右下角為流理台木櫃 (x > 71%)，予以排除
                             if (state.currentStage === 2 && x > w * 0.71) continue;
 
                             const idx = (y * w + x) * 4;
@@ -561,7 +562,6 @@
 
                 audio.onended = playNext;
                 audio.onerror = () => {
-                    // 備援合成音效
                     if (fileName === 'correct.mp3') playSoundEffect('correct');
                     else if (fileName === 'error.mp3') playSoundEffect('wrong');
                     playNext();
@@ -980,7 +980,12 @@
          * 顯示過關結算畫面
          */
         function showVictory() {
-            playSoundEffect('win');
+            // 優先播放騰訊雲上的 win.mp3，若失敗則退回合成勝利音效
+            const winAudio = new Audio(AUDIO_BASE_URL + 'win.mp3');
+            state.currentAudio = winAudio;
+            winAudio.onerror = () => playSoundEffect('win');
+            winAudio.play().catch(() => playSoundEffect('win'));
+
             if (typeof confetti === 'function') {
                 confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
             }
